@@ -2,7 +2,7 @@
 
 # Event.ts
 
-Copyright(C) xxx. All rights reserved.
+Copyright(C) nonchang.net All rights reserved.
 
 ## 概要
 

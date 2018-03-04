@@ -19,8 +19,12 @@ import * as THREE from 'three';
 import * as Sub from './sub';
 import {default as UI} from './UI/UI';
 import {default as UIEvent} from './Event/UIEvent';
+import {ISceneWrapper,SampleScene} from './Scenes/SampleScene/SampleScene';
+
+import * as Tone from 'tone';
 
 // Windowスコープを拡張: コンソールからMainのpublic要素にアクセスできるように
+// 例: console.log("test",window.Main.dirty) //note: 実行時はjavascriptなので、privateプロパティも参照できる点に注意
 declare global{
 	interface Window{
 		Main?
@@ -37,19 +41,25 @@ window.addEventListener('DOMContentLoaded', () => {
 
 class Main{
 
-	UI: UI
-	UIEvent: UIEvent
+	private UI: UI
+	private UIEvent: UIEvent
 
-	dirty: boolean = true
-	renderer: THREE.WebGLRenderer
-	camera: THREE.PerspectiveCamera
-	scene: THREE.Scene
-	canvas: HTMLCanvasElement
+	private dirty: boolean = true
+	private renderer: THREE.WebGLRenderer
+	private camera: THREE.PerspectiveCamera
+	private scene: THREE.Scene
+	private canvas: HTMLCanvasElement
 
-	box: THREE.Mesh
-	mesh: THREE.Mesh
+	private box: THREE.Mesh
+	private mesh: THREE.Mesh
 
 	constructor(canvasElement: HTMLCanvasElement, uiElement: HTMLElement){
+
+		// Tone.jsテスト: 鳴った！
+		// - これはシンセ制御からしてみたい欲求にすごく貢献しそうなアレ。
+		// - d.tsはまだimportしてない。 : https://github.com/Tonejs/TypeScript
+		// var synth = new Tone.Synth().toMaster();
+		// synth.triggerAttackRelease("C4", "8n");
 
 		// UI初期化（こちらはただのdivタグのdom）
 		this.UI = new UI(uiElement)
@@ -145,8 +155,10 @@ class Main{
 	Tick(){
 		requestAnimationFrame(()=>{this.Tick()})
 
+		// TODO: 責務を分離したい。Scenesに管理させるべき？
+
 		// console.log("65 pressed : "+this.pressed[65])
-		if(this.pressed[65]){
+		if(this.UIEvent.pressed[65]){
 			this.dirty=true
 			this.box.rotation.x += 0.05
 			this.box.rotation.y += 0.05
@@ -195,13 +207,4 @@ class Main{
 		this.dirty = true
 	}
 
-	// イベント回り
-	// - どうクラス化しよう。
-	// - クラス分けていちいちlistenし直すのもなんか違う気が。でもそれしかないか？
-
-	pressed = {}
-	isTouched = false
-	lastTouchPos = {x: -1, y: -1}
-
-	
 }
