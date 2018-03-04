@@ -1,3 +1,5 @@
+const CopyWebpackPlugin = require('copy-webpack-plugin')
+
 module.exports = {
   // モード値を production に設定すると最適化された状態で、
   // development に設定するとソースマップ有効でJSファイルが出力される
@@ -37,4 +39,12 @@ module.exports = {
     contentBase: 'dist',
     // port: 3000
   },
+
+  plugins: [
+    new CopyWebpackPlugin([
+      {
+        from: 'assets'
+      },
+    ])
+  ],
 };

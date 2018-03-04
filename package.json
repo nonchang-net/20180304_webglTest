@@ -1,10 +1,14 @@
 {
   "scripts": {
     "build": "webpack",
-    "watch": "webpack -w",
     "dev": "webpack-dev-server"
   },
+  "scripts_unuse":{
+    "comment": "使ってないscriptsはここに一旦退避します",
+    "watch": "webpack -w"
+  },
   "devDependencies": {
+    "copy-webpack-plugin": "^4.5.0",
     "ts-loader": "^4.0.0",
     "typescript": "^2.6.1",
     "webpack": "^4.0.0",
