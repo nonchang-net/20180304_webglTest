@@ -53,7 +53,6 @@ class Main{
 
 		// UI初期化（こちらはただのdivタグのdom）
 		this.UI = new UI(uiElement)
-		console.log(uiElement)
 		this.UIEvent = new UIEvent(uiElement)
 
 		// レンダラーを作成 - dom生成する例
