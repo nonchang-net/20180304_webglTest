@@ -43,15 +43,15 @@ export default class UIEvent{
 		})
 
 		//タッチイベント
-		window.addEventListener("touchstart", (event)=>{this.TouchStart(event)}, false);
-		window.addEventListener("touchend", (event)=>{this.TouchEnd()}, false);
-		window.addEventListener("touchcancel", (event)=>{this.TouchEnd()}, false);
-		window.addEventListener("touchmove", (event)=>{this.TouchMove(event)}, false);
+		window.addEventListener("touchstart", (event)=>{this.TouchStart(event)}, {passive: false});
+		window.addEventListener("touchend", (event)=>{this.TouchEnd()}, {passive: false});
+		window.addEventListener("touchcancel", (event)=>{this.TouchEnd()}, {passive: false});
+		window.addEventListener("touchmove", (event)=>{this.TouchMove(event)}, {passive: false});
 
 		//マウスイベント
-		window.addEventListener('mousedown',(event)=>{this.TouchStart(event)})
-		window.addEventListener('mouseup',(event)=>{this.TouchEnd()})
-		window.addEventListener('mousemove',(event)=>{this.TouchMove(event)})
+		window.addEventListener('mousedown',(event)=>{this.TouchStart(event), {passive: false}})
+		window.addEventListener('mouseup',(event)=>{this.TouchEnd()}, {passive: false})
+		window.addEventListener('mousemove',(event)=>{this.TouchMove(event)}, {passive: false})
 	}
 
 	TouchStart(event: MouseEvent | TouchEvent){
@@ -66,6 +66,7 @@ export default class UIEvent{
 	}
 
 	TouchMove(event: MouseEvent | TouchEvent){
+		event.preventDefault();
 		if(!this.isTouched) return;
 
 		var clientPoints = this.GetClientEventPoints(event)
