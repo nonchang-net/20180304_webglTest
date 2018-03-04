@@ -3,9 +3,24 @@
 ## 概要
 
 - WebGLの練習用リポジトリです。
+	- TypeScript+Webpack導入と、npm run deployまでのセットアップなど環境整備のサンプルとしても。
 - WebGL操作ライブラリにはthree.jsを選択しました。
 - webpackでTypeScript導入。
 	- npm installのあとは、npm run devでローカルサーバ起動します。
+
+
+- リポジトリ  
+	https://github.com/nonchang-net/20180304_webglTest
+
+- 動作サンプル  
+	http://nonchang.net/test/webgl/
+
+
+## ライセンスとか
+
+個人の練習用リポジトリなので転載などはご容赦ください。  
+なんか有益なものができたらMIT記載でリポジトリ分けます。
+
 
 ## 目標
 
@@ -32,7 +47,8 @@
 			- 理解が早い方に寄せる判断とも言える。
 
 - デプロイ周り
-	- npm run deployで所定のS3にアップするスクリプトを導入したい
+	- 毎回assetsをアップし直してるのが気になる……。exact-timestamps外しても一緒か。。
+		- 不要な更新はできれば避けたい。この辺は規模が大きくなるまでは無視して良さそうだけど。
 
 - stats.js導入
 	- https://github.com/mrdoob/stats.js

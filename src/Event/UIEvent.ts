@@ -28,7 +28,7 @@ export default class UIEvent{
 		this.uiElement = uiElement //とりあえずevent受けるために置いてみたやつ。。
 
 		window.addEventListener('resize',()=>{
-			uiElement.dispatchEvent(new Event("window.resize")) //TODO: イベント名は一箇所にまとめる
+			this.uiElement.dispatchEvent(new Event("window.resize")) //TODO: イベント名は一箇所にまとめる
 			// console.log("window resize.");
 		})
 
@@ -42,33 +42,73 @@ export default class UIEvent{
 			this.pressed[event.keyCode]=false
 		})
 
-		window.addEventListener('mousedown',(event)=>{
-			this.isTouched = true;
-			this.lastTouchPos = {
-				x: event.clientX,
-				y: event.clientY
-			}
-		})
+		//タッチイベント
+		window.addEventListener("touchstart", (event)=>{this.TouchStart(event)}, false);
+		window.addEventListener("touchend", (event)=>{this.TouchEnd(event)}, false);
+		window.addEventListener("touchcancel", (event)=>{this.TouchEnd(event)}, false);
+		window.addEventListener("touchmove", (event)=>{this.TouchMove(event)}, false);
 
-		window.addEventListener('mouseup',(event)=>{
-			this.isTouched = false;
-		})
+		//マウスイベント
+		window.addEventListener('mousedown',(event)=>{this.TouchStart(event)})
+		window.addEventListener('mouseup',(event)=>{this.TouchEnd(event)})
+		window.addEventListener('mousemove',(event)=>{this.TouchMove(event)})
+	}
 
-		window.addEventListener('mousemove',(event)=>{
-			if(!this.isTouched) return;
-			
-			const delta={
-				x: this.lastTouchPos.x - event.clientX,
-				y: this.lastTouchPos.y - event.clientY
+	TouchStart(event){
+		console.log("touch start");
+		this.isTouched = true;
+		this.lastTouchPos = {
+			x: event.clientX,
+			y: event.clientY
+		}
+	}
+	TouchEnd(event){
+		console.log("touch end");
+		this.isTouched = false;
+	}
+
+	// IsTouchEvent(event:MouseEvent | TouchEvent):bool{
+	// 	if(event as TouchEvent) return false;
+	// 	return true;
+	// }
+
+	GetClientEventPoints(event:MouseEvent | TouchEvent):{x:number,y:number}{
+		if((<TouchEvent>event).touches){
+			return {
+				x:(<TouchEvent>event).touches[0].clientX,
+				y:(<TouchEvent>event).touches[0].clientY
 			}
-			this.lastTouchPos = {
-				x: event.clientX,
-				y: event.clientY
-			}
-			// console.log("dragged.", delta, event.clientX, event.clientY);
-			
-			let eventDetail:any = {detail: { delta: delta }}
-			uiElement.dispatchEvent(new CustomEvent("window.mousemove",eventDetail));
-		})
+		}
+		return {
+			x: (<MouseEvent>event).clientX,
+			y: (<MouseEvent>event).clientY
+		}
+
+	}
+
+	TouchMove(event:MouseEvent | TouchEvent){
+		if(!this.isTouched) return;
+
+		var clientPoints=this.GetClientEventPoints(event)
+
+		const delta={
+			x: this.lastTouchPos.x - clientPoints.x,
+			y: this.lastTouchPos.y - clientPoints.y
+		}
+		this.lastTouchPos = {
+			x: clientPoints.x,
+			y: clientPoints.y
+		}
+		// console.log("touch move",clientPoints);
+		
+		console.log("dragged.", delta, clientPoints);
+
+		if(isNaN(delta.x)){
+			console.log("NaN")
+			return
+		}
+		
+		let eventDetail:any = {detail: { delta: delta }}
+		this.uiElement.dispatchEvent(new CustomEvent("window.mousemove",eventDetail));
 	}
 }

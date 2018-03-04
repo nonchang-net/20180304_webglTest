@@ -32,7 +32,7 @@ export default class UI{
         uiElement = uiElement
         const h1 = document.createElement("h1")
         h1.style.fontSize = "12px"
-        h1.innerText="test"
+        h1.innerText="test2"
         uiElement.appendChild(h1)
     }
 }
