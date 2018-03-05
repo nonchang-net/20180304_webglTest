@@ -21,15 +21,20 @@ export default class UIEvent{
 	isTouched = false
 	lastTouchPos = {x: -1, y: -1}
 
+	referenceLength : number
+
 
 
 	constructor(uiElement:HTMLElement){
 
 		this.uiElement = uiElement //とりあえずevent受けるために置いてみたやつ。。
 
+		this.referenceLength = window.innerHeight
+
 		window.addEventListener('resize',()=>{
 			this.uiElement.dispatchEvent(new Event("window.resize")) //TODO: イベント名は一箇所にまとめる
 			// console.log("window resize.");
+			this.referenceLength = window.innerHeight
 		})
 
 		window.addEventListener('keydown',(event)=>{

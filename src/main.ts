@@ -90,8 +90,8 @@ class Main{
 
 			// 試しにマウスで動かしてみる
 			// - 軸がさっぱりで何のことやら。。
-			this.mesh.rotation.y -= event.detail.delta.x * 0.05
-			this.mesh.rotation.x -= event.detail.delta.y * 0.05
+			this.mesh.rotation.y -= event.detail.delta.x / this.UIEvent.referenceLength * 5.0
+			this.mesh.rotation.x -= event.detail.delta.y / this.UIEvent.referenceLength * 5.0
 			this.dirty = true
 		})
 
