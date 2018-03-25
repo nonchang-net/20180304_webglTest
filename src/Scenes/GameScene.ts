@@ -88,7 +88,8 @@ export class GameScene{
 			this.camera.rotation.y -= event.detail.delta.x / this.uiEvent.referenceLength * 5.0
 
 			// カメラ回転: 縦方向
-			this.camera.rotation.x -= event.detail.delta.y / this.uiEvent.referenceLength * 5.0
+			// this.camera.rotation.x -= event.detail.delta.y / this.uiEvent.referenceLength * 5.0
+			this.camera.translateZ(event.detail.delta.y / this.uiEvent.referenceLength * -400.0)
 
 			this.dirty = true
 		})
@@ -119,7 +120,7 @@ export class GameScene{
 		// 	}
 		// }
 
-		//上下damping - 成功、一時オフ
+		//上下damping - 成功、操作感が悪いので一時オフ
 		// if(Math.abs(this.camera.rotation.x) != 0){
 		// 	this.dirty=true
 		// 	// console.log(Math.abs(this.camera.rotation.x))
@@ -185,12 +186,15 @@ export class GameScene{
 		}
 
 		// 描画
+
+		console.log(`pos = ${Math.floor(this.camera.position.x)} : ${Math.floor(this.camera.position.z)} : rot = ${Math.floor(this.camera.rotation.y*100)}`);
+
 		this.renderer.render(this.scene, this.camera)
 		this.dirty=false
 	}
 
 
-
+	wallTexture: THREE.Texture
 
 	
 	//===================================
@@ -198,8 +202,16 @@ export class GameScene{
 	InitGameScene(maze: Maze.Maze){
 		this.scene = new THREE.Scene()
 
-		//壁テクスチャ読み込み
-		var texture = THREE.ImageUtils.loadTexture("textures/sample/wall01.jpg");
+		//壁テクスチャ
+		this.wallTexture = THREE.ImageUtils.loadTexture("textures/sample/wall01.jpg", null, ()=>{
+			this.InitGameScene2(maze)
+		})
+	}
+
+	InitGameScene2(maze: Maze.Maze){
+		//地面
+		var landTexture = THREE.ImageUtils.loadTexture("textures/sample/land01.jpg");
+		var landMaterial = new THREE.MeshPhongMaterial({map: landTexture, side: THREE.DoubleSide, bumpMap: landTexture, bumpScale: 0.2});
 
 		// 平行光源を生成
 		const light = new THREE.DirectionalLight(0xffffff)
@@ -235,8 +247,8 @@ export class GameScene{
 
 		// const material = new THREE.MeshPhongMaterial({color: 0x99ff33})
 		const material = new THREE.MeshPhongMaterial({
-			map: texture,
-			bumpMap: texture,
+			map: this.wallTexture,
+			bumpMap: this.wallTexture,
 			bumpScale: 0.2
 			// color: Math.random()*0xFFFFFF
 		})
@@ -246,6 +258,9 @@ export class GameScene{
 		//環境光
 		const light2 = new THREE.AmbientLight(0xffffff,0.3)
 		this.scene.add(light2)
+
+		//フォグ
+		this.scene.fog = new THREE.Fog(0x000000, 10, 500);
 
 		this.Tick()
 	}
@@ -268,23 +283,9 @@ export class GameScene{
 		this.box.position.z = -5
 		this.scene.add(this.box)
 
-		/*
-		        // 壁
-        var geometry = new THREE.CubeGeometry(BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
-        var texture = new THREE.ImageUtils.loadTexture("wall01.jpg");
-        var material = new THREE.MeshPhongMaterial({map: texture, bumpMap: texture, bumpScale: 0.2});
-        for (i = 0, max = MAP.length; i < max; i = i + 1) {
-            for (j = 0, max2 = MAP[i].length; j < max2; j = j + 1) {
-                if (MAP[i][j] == 1) {
-                    var cube = new THREE.Mesh(geometry, material);
-                    cube.position.set(BLOCK_SIZE * j, BLOCK_SIZE / 2, BLOCK_SIZE * i);
-                    scene.add(cube);
-                }
-            }
-        }
-		
-		*/
+		//壁テクスチャ
 		var texture = THREE.ImageUtils.loadTexture("textures/sample/wall01.jpg");
+
 
 		// 1ジオメトリにメッシュを詰め込む
 		// 個別に動かない要素はドローコールをまとめられる
