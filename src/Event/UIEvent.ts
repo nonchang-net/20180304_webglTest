@@ -38,7 +38,7 @@ export default class UIEvent{
 		})
 
 		window.addEventListener('keydown',(event)=>{
-			// console.log(event.keyCode+" down")
+			console.log(event.keyCode+" down")
 			this.pressed[event.keyCode]=true
 
 		})
