@@ -27,7 +27,7 @@ export default class Keyboard {
 		this.events = events
 
 		window.addEventListener('keydown', (event) => {
-			console.log(event.keyCode + " down")
+			// console.log(event.keyCode + " down")
 			this.pressed[event.keyCode] = true
 			this.dirty = true
 		})

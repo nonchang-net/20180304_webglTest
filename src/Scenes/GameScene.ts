@@ -51,6 +51,8 @@ export class GameScene {
 	private readonly BLOCK_WIDTH = 100
 	private readonly FOV = 40
 
+	private ambientLight: THREE.AmbientLight
+
 	constructor(events: GameEvents, canvasElement: HTMLCanvasElement, uiEvent: MyUIEvents, uiElement: HTMLElement) {
 
 		this.uiEvent = uiEvent
@@ -116,7 +118,7 @@ export class GameScene {
 				onComplete: () => {
 					this.camera.position.z = startZ + deltaZ
 					this.camera.position.x = startX + deltaX
-					console.log(`camera pos : `, this.camera.position)
+					// console.log(`camera pos : `, this.camera.position)
 					this.dirty = true
 					events.UI.Enable.broadcast()
 				}
@@ -225,6 +227,28 @@ export class GameScene {
 	Tick() {
 
 		requestAnimationFrame(() => { this.Tick() })
+
+		// ランプを揺らす効果テスト
+		// note: this.dirtyに夜処理負荷削減ができないので一旦保留。。
+		if (Math.random() < 0.03) {
+			// たまに弾ける
+			const newIntensity = 0.5 + (Math.random() * 1)
+			// this.ambientLight.intensity = (this.ambientLight.intensity + newIntensity) / 2
+			this.ambientLight.intensity = newIntensity
+			this.dirty = true
+		} else {
+			if (this.ambientLight.intensity < 0.8) {
+				// 弱くなりすぎると息を吹き返したりする
+				this.ambientLight.intensity += -0.2 + Math.random() * 0.5
+				if (this.ambientLight.intensity > 1) this.ambientLight.intensity = 1
+				this.dirty = true
+			} else {
+				// だんだん弱まる
+				this.ambientLight.intensity -= Math.random() * 0.01
+				this.dirty = true
+			}
+		}
+
 		if (!this.dirty) return
 
 		// console.log(`pos = ${Math.floor(this.camera.position.x)} : ${Math.floor(this.camera.position.z)} : rot = ${Math.floor(this.camera.rotation.y*100)}`);
@@ -322,11 +346,6 @@ export class GameScene {
 	InitGameScene2(maze: Maze.Maze) {
 
 		const PADDING = 0
-
-		// 平行光源を生成
-		const light = new THREE.DirectionalLight(0xffffff)
-		light.position.set(1, 1, 1)
-		this.scene.add(light)
 
 		//==================
 		//床作成
@@ -462,13 +481,27 @@ export class GameScene {
 		//==================
 
 
+		//==================
+		// ライト、環境
 
-		//環境光
-		const light2 = new THREE.AmbientLight(0xffffff, 0.3)
-		this.scene.add(light2)
+		// 平行光源を生成
+		// const light = new THREE.DirectionalLight(0xffffff)
+		// light.position.set(1, 1, 1)
+		// this.scene.add(light)
+
+		// 環境光
+		this.ambientLight = new THREE.AmbientLight(0xffffff, 1)
+		this.scene.add(this.ambientLight)
+
+		//ポイントライト
+		// const pointLight = new THREE.PointLight(0xffffff, 1000, 0)
+		// this.camera.add(pointLight)
+
+		// const spotLight = new THREE.SpotLight(0xffffff, 1, 0, 0, 1)
+		// this.camera.add(spotLight)
 
 		//フォグ
-		this.scene.fog = new THREE.Fog(0x000000, 10, 500);
+		this.scene.fog = new THREE.Fog(0x000000, 0, 350);
 
 		// ゲームループ開始
 		this.dirty = true
