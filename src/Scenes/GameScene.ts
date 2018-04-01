@@ -20,6 +20,7 @@ import { default as MyUIEvents } from '../Event/UIEvent';
 import * as Maze from '../Dangeon/Maze';
 import { default as GameEvents } from '../Event/GameEvents';
 import { default as Tween } from "../Common/Tween"
+import { default as MapView } from "./MapView"
 
 // シーンラッパー
 // シーン管理クラスはこれを実装する
@@ -53,7 +54,13 @@ export class GameScene {
 
 	private ambientLight: THREE.AmbientLight
 
-	constructor(events: GameEvents, canvasElement: HTMLCanvasElement, uiEvent: MyUIEvents, uiElement: HTMLElement) {
+	constructor(
+		events: GameEvents,
+		canvasElement: HTMLCanvasElement,
+		mapView: MapView,
+		uiEvent: MyUIEvents,
+		uiElement: HTMLElement
+	) {
 
 		this.uiEvent = uiEvent
 		this.uiElement = uiElement
@@ -229,25 +236,25 @@ export class GameScene {
 		requestAnimationFrame(() => { this.Tick() })
 
 		// ランプを揺らす効果テスト
-		// note: this.dirtyに夜処理負荷削減ができないので一旦保留。。
-		if (Math.random() < 0.03) {
-			// たまに弾ける
-			const newIntensity = 0.5 + (Math.random() * 1)
-			// this.ambientLight.intensity = (this.ambientLight.intensity + newIntensity) / 2
-			this.ambientLight.intensity = newIntensity
-			this.dirty = true
-		} else {
-			if (this.ambientLight.intensity < 0.8) {
-				// 弱くなりすぎると息を吹き返したりする
-				this.ambientLight.intensity += -0.2 + Math.random() * 0.5
-				if (this.ambientLight.intensity > 1) this.ambientLight.intensity = 1
-				this.dirty = true
-			} else {
-				// だんだん弱まる
-				this.ambientLight.intensity -= Math.random() * 0.01
-				this.dirty = true
-			}
-		}
+		// note: そこそこ良さそうだけど、チラつくので常時オンはきついかな……？
+		// if (Math.random() < 0.03) {
+		// 	// たまに弾ける
+		// 	const newIntensity = 0.5 + (Math.random() * 1)
+		// 	// this.ambientLight.intensity = (this.ambientLight.intensity + newIntensity) / 2
+		// 	this.ambientLight.intensity = newIntensity
+		// 	this.dirty = true
+		// } else {
+		// 	if (this.ambientLight.intensity < 0.8) {
+		// 		// 弱くなりすぎると息を吹き返したりする
+		// 		this.ambientLight.intensity += -0.2 + Math.random() * 0.5
+		// 		if (this.ambientLight.intensity > 1) this.ambientLight.intensity = 1
+		// 		this.dirty = true
+		// 	} else {
+		// 		// だんだん弱まる
+		// 		this.ambientLight.intensity -= Math.random() * 0.01
+		// 		this.dirty = true
+		// 	}
+		// }
 
 		if (!this.dirty) return
 

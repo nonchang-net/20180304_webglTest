@@ -25,6 +25,7 @@ import { default as GameEvents } from './Event/GameEvents';
 import * as GameScene from './Scenes/GameScene';
 import { default as SampleSound } from './Sound/Synthesize/SampleSound';
 import * as Maze from './Dangeon/Maze';
+import { default as MapView } from './Scenes/MapView';
 
 
 // Windowスコープを拡張: コンソールからMainのpublic要素にアクセスできるように
@@ -63,19 +64,31 @@ class Main {
 		// キーボードイベント監視クラス初期化
 		new Keyboard(events)
 
+		// THREE.js用の3d canvas作成
 		const canvas = new Styler("canvas").appendTo(ui.main).getElement()
 		ui.main.appendChild(canvas)
-
 		const uiEvent = new MyUIEvents(canvas)
 
 		// this.renderCanvas2d(canvas.getContext('2d'))
 
-		const game = new GameScene.GameScene(events, canvas, uiEvent, ui.main)
-
+		// 迷路情報初期化
 		var maze = new Maze.Factory().Create(9, 9)
+
+		// マップUI初期化
+		const map = new MapView()
+
+		// ゲームシーン初期化
+		const game = new GameScene.GameScene(events, canvas, map, uiEvent, ui.main)
+
+		// マップUI更新
+		ui.main.appendChild(map.element)
+		map.update(maze)
+
+
 		// console.log(maze);
 
 		game.InitGameScene(maze)
+
 
 
 		// サンプルサウンド初期化: 成功、実装は保留で。
