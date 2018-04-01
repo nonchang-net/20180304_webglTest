@@ -20,6 +20,8 @@ export default class Keyboard {
 	private dirty = false
 	private events: GameEvents
 
+	private interactable = true
+
 	constructor(events: GameEvents) {
 
 		this.events = events
@@ -34,12 +36,20 @@ export default class Keyboard {
 			this.pressed[event.keyCode] = false
 			this.dirty = true
 		})
+		// UIイベントsubscribe
+		events.UI.Enable.subscribe(this.constructor.name, () => {
+			this.interactable = true
+		})
+		events.UI.Disable.subscribe(this.constructor.name, () => {
+			this.interactable = false
+		})
 
 		this.Tick()
 	}
 
 	Tick() {
 		requestAnimationFrame(() => { this.Tick() })
+		if (!this.interactable) return
 		if (!this.dirty) return
 		this.dirty = false
 

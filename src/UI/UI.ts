@@ -114,14 +114,14 @@ export default class UI {
 						{
 							text: "↑",
 							onclick: () => {
-								console.log("up")
+								// console.log("up")
 								events.Button.StepToForward.broadcast()
 							}
 						},
 						{
 							text: "menu",
 							onclick: () => {
-								console.log("test3")
+								// console.log("test3")
 							}
 						},
 					]
@@ -131,20 +131,21 @@ export default class UI {
 						{
 							text: "←",
 							onclick: () => {
-								console.log("left")
+								// console.log("left")
 								events.Button.TurnLeft.broadcast()
 							}
 						},
 						{
 							text: "↓",
 							onclick: () => {
-								console.log("down")
+								// console.log("down")
+								events.Button.StepToBack.broadcast()
 							}
 						},
 						{
 							text: "→",
 							onclick: () => {
-								console.log("right")
+								// console.log("right")
 								events.Button.TurnRight.broadcast()
 							}
 						},

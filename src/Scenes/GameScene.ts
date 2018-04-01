@@ -35,6 +35,7 @@ import { default as Tween } from "../Common/Tween"
 export class GameScene {
 
 	private uiElement: HTMLElement
+	private canvasElement: HTMLCanvasElement
 	private uiEvent: MyUIEvents
 
 	private renderer: THREE.WebGLRenderer
@@ -48,11 +49,13 @@ export class GameScene {
 	private dirty: boolean = false
 
 	private readonly BLOCK_WIDTH = 100
+	private readonly FOV = 40
 
 	constructor(events: GameEvents, canvasElement: HTMLCanvasElement, uiEvent: MyUIEvents, uiElement: HTMLElement) {
 
 		this.uiEvent = uiEvent
 		this.uiElement = uiElement
+		this.canvasElement = canvasElement
 
 		this.uiElement.style.background = "rgba(255,0,0,1)"
 		this.uiElement.style.width = "100%"
@@ -60,10 +63,6 @@ export class GameScene {
 
 		// レンダラーを作成 - こっちはcanvasタグ取得。UIレイヤを重ねるのでとりあえずこの仕様で。
 		this.renderer = new THREE.WebGLRenderer({ canvas: canvasElement })
-
-		// レンダラーのサイズを設定
-		this.renderer.setSize(window.innerWidth, window.innerHeight)
-
 		this.InitCamera()
 		this.UpdateCamera()
 
@@ -117,6 +116,7 @@ export class GameScene {
 				onComplete: () => {
 					this.camera.position.z = startZ + deltaZ
 					this.camera.position.x = startX + deltaX
+					console.log(`camera pos : `, this.camera.position)
 					this.dirty = true
 					events.UI.Enable.broadcast()
 				}
@@ -221,6 +221,7 @@ export class GameScene {
 
 	}//constructor
 
+
 	Tick() {
 
 		requestAnimationFrame(() => { this.Tick() })
@@ -252,7 +253,12 @@ export class GameScene {
 			this.renderer.setPixelRatio(window.devicePixelRatio); //retinaなどではくっきり高画質
 		}
 
-		this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 10000)
+		this.camera = new THREE.PerspectiveCamera(
+			this.FOV * (this.canvasElement.clientHeight / this.canvasElement.clientWidth),
+			this.canvasElement.clientWidth / this.canvasElement.clientHeight,
+			1,
+			10000
+		)
 		this.camera.position.set(0, 0, +1000)
 		this.dirty = true
 
@@ -268,8 +274,17 @@ export class GameScene {
 		this.renderer.setSize(width, height);
 
 		// カメラのアスペクト比を正す
-		this.camera.aspect = width / height;
+		this.camera.aspect = width / height
+
+		// note: 逆アスペクトをfovに乗算することで、画面横幅サイズを維持した画角になる
+		this.camera.fov = this.FOV * (height / width)
+
 		this.camera.updateProjectionMatrix();
+
+		//ログ出しして算出した初期位置
+		// this.camera.position = new THREE.Vector3(100, 0, 700)
+		this.camera.position.x = 100
+		this.camera.position.z = 700
 
 		this.dirty = true
 	}
@@ -352,72 +367,72 @@ export class GameScene {
 
 
 
-	//===================================
-	//scene take1: 箱を並べてみる初期サンプル
-	InitSampleScene() {
-		// シーンを作成
-		this.scene = new THREE.Scene()
+	// //===================================
+	// //scene take1: 箱を並べてみる初期サンプル
+	// InitSampleScene() {
+	// 	// シーンを作成
+	// 	this.scene = new THREE.Scene()
 
-		// すごく縦長の紫色の箱を作成
-		const geometry = new THREE.BoxGeometry(10, 10000, 10)
-		const material = new THREE.MeshPhongMaterial({ color: 0xff00ff })
-		this.box = new THREE.Mesh(geometry, material)
-		this.box.position.z = -5
-		this.scene.add(this.box)
+	// 	// すごく縦長の紫色の箱を作成
+	// 	const geometry = new THREE.BoxGeometry(10, 10000, 10)
+	// 	const material = new THREE.MeshPhongMaterial({ color: 0xff00ff })
+	// 	this.box = new THREE.Mesh(geometry, material)
+	// 	this.box.position.z = -5
+	// 	this.scene.add(this.box)
 
-		//壁テクスチャ
-		var texture = THREE.ImageUtils.loadTexture("textures/sample/wall01.jpg");
+	// 	//壁テクスチャ
+	// 	var texture = THREE.ImageUtils.loadTexture("textures/sample/wall01.jpg");
 
 
-		// 1ジオメトリにメッシュを詰め込む
-		// 個別に動かない要素はドローコールをまとめられる
-		{
-			const CELL_NUM = 5;
+	// 	// 1ジオメトリにメッシュを詰め込む
+	// 	// 個別に動かない要素はドローコールをまとめられる
+	// 	{
+	// 		const CELL_NUM = 5;
 
-			// 空のジオメトリを作成
-			const geometry = new THREE.Geometry();
+	// 		// 空のジオメトリを作成
+	// 		const geometry = new THREE.Geometry();
 
-			// Box
-			for (let i = 0; i < CELL_NUM; i++) {
-				for (let j = 0; j < CELL_NUM; j++) {
-					for (let k = 0; k < CELL_NUM; k++) {
-						// 立方体個別の要素を作成
-						const meshTemp = new THREE.Mesh(
-							new THREE.BoxGeometry(30, 30, 30)
-						);
+	// 		// Box
+	// 		for (let i = 0; i < CELL_NUM; i++) {
+	// 			for (let j = 0; j < CELL_NUM; j++) {
+	// 				for (let k = 0; k < CELL_NUM; k++) {
+	// 					// 立方体個別の要素を作成
+	// 					const meshTemp = new THREE.Mesh(
+	// 						new THREE.BoxGeometry(30, 30, 30)
+	// 					);
 
-						// XYZ座標を設定
-						meshTemp.position.set(
-							40 * (i - CELL_NUM / 2),
-							40 * (j - CELL_NUM / 2),
-							40 * (k - CELL_NUM / 2)
-						);
+	// 					// XYZ座標を設定
+	// 					meshTemp.position.set(
+	// 						40 * (i - CELL_NUM / 2),
+	// 						40 * (j - CELL_NUM / 2),
+	// 						40 * (k - CELL_NUM / 2)
+	// 					);
 
-						// メッシュをマージ（結合）
-						geometry.mergeMesh(meshTemp);
-					}
-				}
-			}
-			// const material = new THREE.MeshPhongMaterial({color: 0x99ff33})
-			const material = new THREE.MeshPhongMaterial({
-				map: texture,
-				bumpMap: texture,
-				bumpScale: 0.2
-				// color: Math.random()*0xFFFFFF
-			})
-			this.mesh = new THREE.Mesh(geometry, material);
-			this.scene.add(this.mesh);
-		}
+	// 					// メッシュをマージ（結合）
+	// 					geometry.mergeMesh(meshTemp);
+	// 				}
+	// 			}
+	// 		}
+	// 		// const material = new THREE.MeshPhongMaterial({color: 0x99ff33})
+	// 		const material = new THREE.MeshPhongMaterial({
+	// 			map: texture,
+	// 			bumpMap: texture,
+	// 			bumpScale: 0.2
+	// 			// color: Math.random()*0xFFFFFF
+	// 		})
+	// 		this.mesh = new THREE.Mesh(geometry, material);
+	// 		this.scene.add(this.mesh);
+	// 	}
 
-		// 平行光源を生成
-		const light = new THREE.DirectionalLight(0xffffff)
-		light.position.set(1, 1, 1)
-		this.scene.add(light)
+	// 	// 平行光源を生成
+	// 	const light = new THREE.DirectionalLight(0xffffff)
+	// 	light.position.set(1, 1, 1)
+	// 	this.scene.add(light)
 
-		// ゲームループ開始
-		this.dirty = true
-		this.Tick()
-	}
+	// 	// ゲームループ開始
+	// 	this.dirty = true
+	// 	this.Tick()
+	// }
 
 
 }
