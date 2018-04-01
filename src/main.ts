@@ -72,7 +72,6 @@ class Main {
 
 		const game = new GameScene.GameScene(events, canvas, uiEvent, ui.main)
 
-
 		var maze = new Maze.Factory().Create(9, 9)
 		// console.log(maze);
 

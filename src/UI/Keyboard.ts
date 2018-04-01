@@ -52,23 +52,27 @@ export default class Keyboard {
 
 		// カーソル
 		if (this.pressed[39]) {//right
-			this.events.Debug.TestRight.broadcast()
-			this.dirty = true //連続受付
+			// this.events.Debug.TestRight.broadcast()
+			// this.dirty = true //連続受付
+			this.events.Button.TurnRight.broadcast()
 		}
 
 		if (this.pressed[37]) {//left
-			this.events.Debug.TestLeft.broadcast()
-			this.dirty = true //連続受付
+			// this.events.Debug.TestLeft.broadcast()
+			// this.dirty = true //連続受付
+			this.events.Button.TurnLeft.broadcast()
 		}
 
 		if (this.pressed[38]) {//up
-			this.events.Debug.TestForward.broadcast()
-			this.dirty = true //連続受付
+			// this.events.Debug.TestForward.broadcast()
+			// this.dirty = true //連続受付
+			this.events.Button.StepToForward.broadcast()
 		}
 
 		if (this.pressed[40]) {//down
-			this.events.Debug.TestDown.broadcast()
-			this.dirty = true //連続受付
+			// this.events.Debug.TestDown.broadcast()
+			// this.dirty = true //連続受付
+			this.events.Button.StepToBack.broadcast()
 		}
 
 		//wsdaはデバッグ。

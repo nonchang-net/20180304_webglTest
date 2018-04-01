@@ -44,6 +44,7 @@ class ButtonEvents {
 	TurnRight = new Event()
 	TurnLeft = new Event()
 	StepToForward = new Event()
+	StepToBack = new Event()
 }
 
 class DebugEvents {

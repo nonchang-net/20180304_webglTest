@@ -192,7 +192,7 @@ export default class Tween {
 		},
 		duration: 500,
 		shift: 0,//TODO: 実行前の待機時間。差分付きでアニメーションを連続させたいときに有益
-		tweeningFunction: Tween.easeOutBounce,//easeInQuad, easeInQuint
+		tweeningFunction: Tween.easeInQuad,//easeInQuad, easeInQuint
 		onUpdate: (x: number) => { console.log(`please override me! ${x}`) }
 	};
 

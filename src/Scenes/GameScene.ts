@@ -47,6 +47,8 @@ export class GameScene {
 
 	private dirty: boolean = false
 
+	private readonly BLOCK_WIDTH = 100
+
 	constructor(events: GameEvents, canvasElement: HTMLCanvasElement, uiEvent: MyUIEvents, uiElement: HTMLElement) {
 
 		this.uiEvent = uiEvent
@@ -89,33 +91,99 @@ export class GameScene {
 		// ゲームイベント
 		events.Button.StepToForward.subscribe(this.constructor.name, () => {
 			events.UI.Disable.broadcast()
+
+			// note: translateで前進するのではなく、tweenさせたいので悩ましい。
+			// 3Dの数学には詳しくないので、ここでは雑にTHREE.jsでtranslateさせた結果を計算させることに。
+			// - translateして前進した座標を保存
+			// - 元の位置に戻す
+			// - その差分をtweenする
+			// もっといいやり方があれば差し替えたい。
+			const startZ = this.camera.position.z
+			const startX = this.camera.position.x
+			this.camera.translateZ(-this.BLOCK_WIDTH)
+			const deltaZ = this.camera.position.z - startZ
+			const deltaX = this.camera.position.x - startX
+			this.camera.translateZ(this.BLOCK_WIDTH)
+
 			Tween.To({
-				onUpdate: (x) => {
+				duration: 100,
+				onUpdate: (progress) => {
 					// console.log(`step to forward ${x}`)
-					this.camera.translateZ(-5)
+					// this.camera.translateZ(-5)
+					this.camera.position.z = startZ + deltaZ * progress
+					this.camera.position.x = startX + deltaX * progress
 					this.dirty = true
 				},
 				onComplete: () => {
+					this.camera.position.z = startZ + deltaZ
+					this.camera.position.x = startX + deltaX
+					this.dirty = true
 					events.UI.Enable.broadcast()
 				}
 			})
 		})
 
-		// events.Button.TurnRight.subscribe(this.constructor.name, () => {
-		// 	events.UI.Disable.broadcast()
-		// 	Tween.To({
-		// 		// values: {
+		events.Button.StepToBack.subscribe(this.constructor.name, () => {
+			events.UI.Disable.broadcast()
 
-		// 		// },
-		// 		onUpdate: (x) => {
-		// 			this.camera.translateZ(-5)
-		// 			this.dirty = true
-		// 		},
-		// 		onComplete: () => {
-		// 			events.UI.Enable.broadcast()
-		// 		}
-		// 	})
-		// })
+			const startZ = this.camera.position.z
+			const startX = this.camera.position.x
+			this.camera.translateZ(this.BLOCK_WIDTH)
+			const deltaZ = this.camera.position.z - startZ
+			const deltaX = this.camera.position.x - startX
+			this.camera.translateZ(-this.BLOCK_WIDTH)
+
+			Tween.To({
+				duration: 100,
+				onUpdate: (progress) => {
+					// console.log(`step to forward ${x}`)
+					// this.camera.translateZ(-5)
+					this.camera.position.z = startZ + deltaZ * progress
+					this.camera.position.x = startX + deltaX * progress
+					this.dirty = true
+				},
+				onComplete: () => {
+					this.camera.position.z = startZ + deltaZ
+					this.camera.position.x = startX + deltaX
+					this.dirty = true
+					events.UI.Enable.broadcast()
+				}
+			})
+		})
+
+		events.Button.TurnRight.subscribe(this.constructor.name, () => {
+			events.UI.Disable.broadcast()
+			const start = this.camera.rotation.y
+			Tween.To({
+				duration: 300,
+				onUpdate: (progress) => {
+					this.camera.rotation.y = start - (Math.PI / 2 * progress)
+					this.dirty = true
+				},
+				onComplete: () => {
+					this.camera.rotation.y = start - (Math.PI / 2)
+					this.dirty = true
+					events.UI.Enable.broadcast()
+				}
+			})
+		})
+
+		events.Button.TurnLeft.subscribe(this.constructor.name, () => {
+			events.UI.Disable.broadcast()
+			const start = this.camera.rotation.y
+			Tween.To({
+				duration: 300,
+				onUpdate: (progress) => {
+					this.camera.rotation.y = start + (Math.PI / 2 * progress)
+					this.dirty = true
+				},
+				onComplete: () => {
+					this.camera.rotation.y = start + (Math.PI / 2)
+					this.dirty = true
+					events.UI.Enable.broadcast()
+				}
+			})
+		})
 
 		//デバッグイベント
 		events.Debug.KeyA.subscribe(this.constructor.name, () => {
@@ -127,22 +195,24 @@ export class GameScene {
 		})
 		events.Debug.TestForward.subscribe(this.constructor.name, () => {
 			this.camera.translateZ(-5)
+			console.log(this.camera.position.z);
 			this.dirty = true
 		})
 		events.Debug.TestLeft.subscribe(this.constructor.name, () => {
 			// this.camera.rotateY(0.05)
-			console.log(this.camera.rotation.y);
 			this.camera.rotation.y += 0.05
+			console.log(this.camera.rotation.y);
 			this.dirty = true
 		})
 		events.Debug.TestRight.subscribe(this.constructor.name, () => {
 			// this.camera.rotateY(-0.05)
-			console.log(this.camera.rotation.y);
 			this.camera.rotation.y -= 0.05
+			console.log(this.camera.rotation.y);
 			this.dirty = true
 		})
 		events.Debug.TestDown.subscribe(this.constructor.name, () => {
 			this.camera.translateZ(5)
+			console.log(this.camera.position.z);
 			this.dirty = true
 		})
 
@@ -230,7 +300,6 @@ export class GameScene {
 		this.scene.add(light)
 
 		//壁作成
-		const BLOCK_WIDTH = 100
 		const PADDING = 0
 
 		const geometry = new THREE.Geometry();
@@ -243,13 +312,13 @@ export class GameScene {
 
 				// 立方体個別の要素を作成
 				const meshTemp = new THREE.Mesh(
-					new THREE.BoxGeometry(BLOCK_WIDTH - PADDING, BLOCK_WIDTH - PADDING, BLOCK_WIDTH - PADDING)
+					new THREE.BoxGeometry(this.BLOCK_WIDTH - PADDING, this.BLOCK_WIDTH - PADDING, this.BLOCK_WIDTH - PADDING)
 				);
 				// XYZ座標を設定
 				meshTemp.position.set(
-					BLOCK_WIDTH * x,
+					this.BLOCK_WIDTH * x,
 					0,
-					BLOCK_WIDTH * y
+					this.BLOCK_WIDTH * y
 				);
 				//メッシュをマージ
 				geometry.mergeMesh(meshTemp);
