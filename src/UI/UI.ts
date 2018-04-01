@@ -50,11 +50,6 @@ export default class UI {
 		this.uiElement.style.overflow = `hidden`
 		this.uiElement.style.width = "100%";
 
-		//ヘッダー
-		const h1 = document.createElement("h1")
-		h1.style.fontSize = "12px"
-		h1.innerText = "test 20180401 1524"
-		this.uiElement.appendChild(h1)
 
 		// 下部ボタン以外「全て」
 		const mainContent = new Styler("div")
@@ -65,7 +60,12 @@ export default class UI {
 		mainContent.style.display = "flex";
 		mainContent.style.flex = "1";
 
-
+		//ヘッダー
+		const h1 = new Styler("h1").abs().getElement()
+		h1.style.fontSize = "12px"
+		h1.innerText = "test 20180401 18:32"
+		h1.style.color = "white"
+		mainContent.appendChild(h1)
 
 
 		//main枠

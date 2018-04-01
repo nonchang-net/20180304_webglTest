@@ -291,6 +291,7 @@ export class GameScene {
 
 
 	wallTexture: THREE.Texture
+	landTexture: THREE.Texture
 
 
 	//===================================
@@ -299,23 +300,86 @@ export class GameScene {
 		this.scene = new THREE.Scene()
 
 		//壁テクスチャ
+		//TODO: 警告出てる。`Use THREE.TextureLoader() instead`
 		this.wallTexture = THREE.ImageUtils.loadTexture("textures/sample/wall01.jpg", null, () => {
+			this.LoadLandTexture(maze)
+		})
+		this.wallTexture.anisotropy = 16
+	}
+
+	LoadLandTexture(maze: Maze.Maze) {
+		//地面テクスチャ
+		//TODO: 警告出てる。`Use THREE.TextureLoader() instead`
+		this.landTexture = THREE.ImageUtils.loadTexture("textures/sample/land01.jpg", null, () => {
 			this.InitGameScene2(maze)
 		})
+		this.landTexture.anisotropy = 16
+		// this.landTexture.wrapS = THREE.RepeatWrapping;
+		// this.landTexture.wrapT = THREE.RepeatWrapping;
+		// this.landTexture.repeat.set(maze.cells.length, maze.cells[0].length);
 	}
 
 	InitGameScene2(maze: Maze.Maze) {
-		//地面
-		var landTexture = THREE.ImageUtils.loadTexture("textures/sample/land01.jpg");
-		var landMaterial = new THREE.MeshPhongMaterial({ map: landTexture, side: THREE.DoubleSide, bumpMap: landTexture, bumpScale: 0.2 });
+
+		const PADDING = 0
 
 		// 平行光源を生成
 		const light = new THREE.DirectionalLight(0xffffff)
 		light.position.set(1, 1, 1)
 		this.scene.add(light)
 
+		//==================
+		//床作成
+		const landMaterial = new THREE.MeshPhongMaterial({
+			map: this.landTexture,
+			side: THREE.DoubleSide,
+			bumpMap: this.landTexture,
+			bumpScale: 0.2,
+		});
+
+		// take1 - ワンメッシュを引き伸ばしたい
+		// const landGeometry = new THREE.PlaneGeometry(
+		// 	this.BLOCK_WIDTH * maze.cells.length * 2,
+		// 	this.BLOCK_WIDTH * maze.cells[0].length * 2,
+		// 	maze.cells.length,
+		// 	maze.cells[0].length
+		// )
+		// const landMesh = new THREE.Mesh(landGeometry, landMaterial);
+		// landMesh.position.set(
+		// 	0,
+		// 	-this.BLOCK_WIDTH /2 * -1,
+		// 	0
+		// );
+		// // landMesh.rotation.x = 90 * Math.PI / 180;
+		// landMesh.rotation.x = Math.PI / 2;
+
+		// take0.5 - セルごとにジオメトリ生成。効率悪いので避けたい
+		const landGeometry = new THREE.Geometry();
+		for (let x = 0; x < maze.cells.length; x++) {
+			for (let y = 0; y < maze.cells[x].length; y++) {
+
+				// 立方体個別の要素を作成
+				const meshTemp = new THREE.Mesh(
+					new THREE.PlaneGeometry(this.BLOCK_WIDTH, this.BLOCK_WIDTH)
+				);
+				// XYZ座標を設定
+				meshTemp.position.set(
+					this.BLOCK_WIDTH * x,
+					this.BLOCK_WIDTH / 2 * -1,
+					this.BLOCK_WIDTH * y
+				);
+				meshTemp.rotation.x = Math.PI / 2 * -1;
+				//メッシュをマージ
+				landGeometry.mergeMesh(meshTemp);
+			}
+		}
+		const landMesh = new THREE.Mesh(landGeometry, landMaterial);
+
+		this.scene.add(landMesh);
+
+
+		//==================
 		//壁作成
-		const PADDING = 0
 
 		const geometry = new THREE.Geometry();
 		for (let x = 0; x < maze.cells.length; x++) {
@@ -340,15 +404,64 @@ export class GameScene {
 			}
 		}
 
-		// const material = new THREE.MeshPhongMaterial({color: 0x99ff33})
-		const material = new THREE.MeshPhongMaterial({
+		// const blockMaterial = new THREE.MeshPhongMaterial({color: 0x99ff33})
+		const blockMaterial = new THREE.MeshPhongMaterial({
 			map: this.wallTexture,
 			bumpMap: this.wallTexture,
 			bumpScale: 0.2
 			// color: Math.random()*0xFFFFFF
 		})
-		this.mesh = new THREE.Mesh(geometry, material);
+		this.mesh = new THREE.Mesh(geometry, blockMaterial);
 		this.scene.add(this.mesh);
+
+		//壁作成ここまで
+		//==================
+
+		//==================
+		//天井作成
+
+		// take1 - ワンメッシュを引き伸ばしたい
+		// const ceilGeometry = new THREE.PlaneGeometry(
+		// 	this.BLOCK_WIDTH * maze.cells.length,
+		// 	this.BLOCK_WIDTH * maze.cells[0].length,
+		// 	maze.cells.length,
+		// 	maze.cells[0].length
+		// )
+		// const ceilMesh = new THREE.Mesh(landGeometry, blockMaterial); //壁マテリアル流用
+		// ceilMesh.position.set(
+		// 	0,
+		// 	+this.BLOCK_WIDTH / 2,
+		// 	0
+		// );
+		// // landMesh.rotation.x = 90 * Math.PI / 180;
+		// ceilMesh.rotation.x = Math.PI / 2;
+
+		// take0.5 - セルごとにジオメトリ生成。効率悪いので避けたい
+		const ceilGeometry = new THREE.Geometry();
+		for (let x = 0; x < maze.cells.length; x++) {
+			for (let y = 0; y < maze.cells[x].length; y++) {
+
+				// 立方体個別の要素を作成
+				const meshTemp = new THREE.Mesh(
+					new THREE.PlaneGeometry(this.BLOCK_WIDTH, this.BLOCK_WIDTH)
+				);
+				// XYZ座標を設定
+				meshTemp.position.set(
+					this.BLOCK_WIDTH * x,
+					this.BLOCK_WIDTH / 2,
+					this.BLOCK_WIDTH * y
+				);
+				meshTemp.rotation.x = Math.PI / 2;
+				//メッシュをマージ
+				ceilGeometry.mergeMesh(meshTemp);
+			}
+		}
+
+		const ceilMesh = new THREE.Mesh(ceilGeometry, blockMaterial);
+		this.scene.add(ceilMesh);
+		//==================
+
+
 
 		//環境光
 		const light2 = new THREE.AmbientLight(0xffffff, 0.3)
