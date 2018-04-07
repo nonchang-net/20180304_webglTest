@@ -44,6 +44,8 @@ export default class Messages {
 		//上下左右斜めのシャドウ＋右下にブラー付きのドロップシャドウ
 		element.style.textShadow = "1px 1px 0 #000, -1px 1px 0 #000, 1px -1px 0 #000, -1px -1px 0 #000, 1px 0px 0 #000, -1px 0px 0 #000, 0px 1px 0 #000, 0px -1px 0 #000, 2px 2px 1px #000"
 
+		element.style.userSelect = "none"
+
 		// 行追加
 		this.lines = new Array<Line>()
 		for (let i = 0; i < maxLine; i++) {
