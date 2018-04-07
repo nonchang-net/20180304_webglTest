@@ -107,6 +107,7 @@ export default class UI {
 						{
 							text: "command",
 							onclick: async () => {
+								events.UI.AddMessage.broadcast("[コマンドメニューを開きます]")
 								events.UI.Disable.broadcast()
 								await buttons.hide()
 								buttons.update(commandMenu)
@@ -165,6 +166,7 @@ export default class UI {
 						{
 							text: "back",
 							onclick: async () => {
+								events.UI.AddMessage.broadcast("[コマンドメニュー終了]")
 								buttons.interactable = false
 								await buttons.hide()
 								buttons.update(mainMenu)

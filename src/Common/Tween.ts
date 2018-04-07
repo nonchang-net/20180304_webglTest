@@ -62,6 +62,8 @@ export default class Tween {
 	// > http://easings.net/ja
 	// > http://gsgd.co.uk/sandbox/jquery/easing/jquery.easing.1.3.js
 	// > Open source under the BSD License. 
+	// http://www.gizma.com/easing/
+	// t: current time, b: start value, c: change in value, d: duration
 
 	static easeInQuad(t, b, c, d): number {
 		return c * (t /= d) * t + b;
@@ -73,9 +75,9 @@ export default class Tween {
 		if ((t /= d / 2) < 1) return c / 2 * t * t + b;
 		return -c / 2 * ((--t) * (t - 2) - 1) + b;
 	}
-	// static easeInCubic(t, b, c, d): number {
-	// 	return c * (t /= d) * t * t + b;
-	// }
+	static easeInCubic(t, b, c, d): number {
+		return c * (t /= d) * t * t + b;
+	}
 	// static easeOutCubic(t, b, c, d): number {
 	// 	return c * ((t = t / d - 1) * t * t + 1) + b;
 	// }

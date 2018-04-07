@@ -6,13 +6,21 @@ Copyright(C) nonchang.net All rights reserved.
 
 ## 概要
 
-- 文字送り・行送りするメッセージ表示システム
+文字送り・行送りするメッセージ表示システムです。
+
+## 利用方法サンプル
+
+「events.UI.AddMessage」に文字列をbroadcastしてください。
+events.Button.StepToForward.subscribe(this.constructor.name, () => {
+	events.UI.AddMessage.broadcast("あなたは前に進んだ。")
+})
 
 */
 
-import { default as GameEvents } from '../Event/GameEvents';
-import { default as Styler } from '../UI/Styler';
-import Utils from '../Common/Utils';
+import { default as GameEvents } from '../Event/GameEvents'
+import { default as Styler } from '../UI/Styler'
+import Utils from '../Common/Utils'
+import Tween from '../Common/Tween'
 
 
 export default class Messages {
@@ -31,7 +39,7 @@ export default class Messages {
 		this.element = element
 		element.style.color = "#fff"
 		element.style.margin = "1em"
-		// element.style.fontWeight = "bold"
+		element.style.fontWeight = "bold"
 
 		//上下左右斜めのシャドウ＋右下にブラー付きのドロップシャドウ
 		element.style.textShadow = "1px 1px 0 #000, -1px 1px 0 #000, 1px -1px 0 #000, -1px -1px 0 #000, 1px 0px 0 #000, -1px 0px 0 #000, 0px 1px 0 #000, 0px -1px 0 #000, 2px 2px 1px #000"
@@ -42,7 +50,8 @@ export default class Messages {
 			const line = new Line()
 			this.lines.push(line)
 			element.appendChild(line.element)
-			const opacity = (1 - ((maxLine - 1 - i) / maxLine))
+			let opacity = (1 - ((maxLine - 1 - i) / maxLine))
+			opacity = Tween.easeInCubic(opacity, 0, 1, 1)
 			// console.log(i, opacity);
 			line.element.style.opacity = opacity.toString()
 			// line.setImmidiate("test: " +i)
@@ -57,11 +66,6 @@ export default class Messages {
 			this.lines[maxLine - 1].set(str, messageSpeed)
 		})
 	}
-
-	// add(str: string) {
-	// 	this.lines[0].set(str)
-	// }
-
 
 }
 
