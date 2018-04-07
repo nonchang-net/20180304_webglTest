@@ -64,7 +64,7 @@ export default class UIEvent {
 		uiElement.addEventListener('mousemove', (event) => { this.TouchMove(event) }, { passive: false })
 	}
 
-	TouchStart(event: MouseEvent | TouchEvent) {
+	TouchStart(event: Event | MouseEvent | TouchEvent) {
 		// console.log("touch start");
 		this.isTouched = true;
 		this.lastTouchPos = this.GetClientEventPoints(event)
@@ -77,7 +77,7 @@ export default class UIEvent {
 		this.uiElement.dispatchEvent(new CustomEvent("window.mouseup"));
 	}
 
-	TouchMove(event: MouseEvent | TouchEvent) {
+	TouchMove(event: Event | MouseEvent | TouchEvent) {
 		// console.log("touch move");
 		event.preventDefault();
 		if (!this.isTouched) return;
@@ -96,7 +96,7 @@ export default class UIEvent {
 		this.uiElement.dispatchEvent(new CustomEvent("window.mousemove", eventDetail));
 	}
 
-	private GetClientEventPoints(event: MouseEvent | TouchEvent): { x: number, y: number } {
+	private GetClientEventPoints(event: Event | MouseEvent | TouchEvent): { x: number, y: number } {
 		if ((<TouchEvent>event).touches) {
 			return {
 				x: (<TouchEvent>event).touches[0].clientX,

@@ -196,6 +196,7 @@ export class GameScene {
 			const zIndex = Math.floor((startZ + deltaZ + 1) / 100);
 			if (this.maze.getCellKind(xIndex, zIndex) == Maze.CellKind.Block) {
 				// console.log(`HIT: Block`, startX, startZ, xIndex, zIndex)
+				events.UI.AddMessage.broadcast("いてっ！")
 				return;
 			}
 			// console.log(`HIT: floor`, startX, startZ, xIndex, zIndex)

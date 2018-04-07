@@ -26,6 +26,7 @@ import * as GameScene from './Scenes/GameScene';
 import { default as SampleSound } from './Sound/Synthesize/SampleSound';
 import * as Maze from './Dangeon/Maze';
 import { default as MapView } from './Scenes/MapView';
+import Messages from './UI/Messages';
 
 
 // Windowスコープを拡張: コンソールからMainのpublic要素にアクセスできるように
@@ -79,15 +80,25 @@ class Main {
 		// ゲームシーン初期化
 		const game = new GameScene.GameScene(events, canvas, map, uiEvent, ui.main)
 
-		// メッセージシーンはgameの左下に合わせたい。
+		// メッセージ
+		const messages = new Messages(events, 5, 100)
+		ui.main.appendChild(messages.element)
 
-		const testmessage = new Styler("div").abs().b().l().text("welcome to cage ver20180407 1524").appendTo(ui.main).getElement()
-		testmessage.style.color = "#fff"
-		testmessage.style.margin = "1em"
-		// testmessage.style.fontWeight = "bold"
+		// messages.add("welcome to cage ver20180407 1524")
+		events.UI.AddMessage.broadcast("welcome to cage ver20180407 16:08")
 
-		//上下左右斜めのシャドウ＋右下にブラー付きのドロップシャドウ
-		testmessage.style.textShadow = "1px 1px 0 #000, -1px 1px 0 #000, 1px -1px 0 #000, -1px -1px 0 #000, 1px 0px 0 #000, -1px 0px 0 #000, 0px 1px 0 #000, 0px -1px 0 #000, 2px 2px 1px #000"
+		// 移動イベントでメッセージを出すテスト
+		// events.Button.StepToForward.subscribe(this.constructor.name, () => {
+		// 	events.UI.AddMessage.broadcast("あなたは前に進んだ。")
+		// })
+		// events.Button.TurnLeft.subscribe(this.constructor.name, () => {
+		// 	events.UI.AddMessage.broadcast("あなたは左に回った。")
+		// })
+		// events.Button.TurnRight.subscribe(this.constructor.name, () => {
+		// 	events.UI.AddMessage.broadcast("あなたは右に回った。")
+		// })
+
+
 
 		// マップUI更新
 		ui.main.appendChild(map.element)

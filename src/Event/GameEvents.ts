@@ -40,6 +40,8 @@ class UIEvents {
 	//ゲーム中、様々な「処理中」にはUI操作停止を通知する必要がある
 	Disable = new Event()
 	Enable = new Event()
+
+	AddMessage = new Event<string>()
 }
 
 class ButtonEvents {
