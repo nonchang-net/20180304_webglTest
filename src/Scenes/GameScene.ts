@@ -35,19 +35,25 @@ import { default as MapView } from "./MapView"
 
 export class GameScene {
 
-	private uiElement: HTMLElement
+	public uiElement: HTMLElement
 	private canvasElement: HTMLCanvasElement
 	private uiEvent: MyUIEvents
 
+	// maze
+	private maze: Maze.Maze
+
+	// 3d
 	private renderer: THREE.WebGLRenderer
 	private camera: THREE.PerspectiveCamera
 	private scene: THREE.Scene
 
-	private box: THREE.Mesh
-	private mesh: THREE.Mesh
-	private floor: THREE.Mesh //TODO
+	private box: THREE.Mesh //unuse?
+	private mesh: THREE.Mesh //unuse?
+	private floor: THREE.Mesh //unuse?
 
-	private dirty: boolean = false
+	private dirty = false
+	private interactable = true
+	private dragging = false
 
 	private readonly BLOCK_WIDTH = 100
 	private readonly FOV = 40
@@ -80,25 +86,96 @@ export class GameScene {
 			this.UpdateCamera()
 		})
 
+		events.UI.Enable.subscribe(this.constructor.name, () => {
+			this.interactable = true
+		})
+		events.UI.Disable.subscribe(this.constructor.name, () => {
+			this.interactable = false
+		})
+
+
+		const broadcastPlayerMove = () => {
+			events.Common.PlayerMove.broadcast({ x: this.camera.position.x, y: this.camera.position.z })
+		}
+		const broadcastPlayerRotate = () => {
+			events.Common.PlayerRotate.broadcast(this.camera.rotation.y)
+		}
+
+		broadcastPlayerMove()
+
+
 		// UIEvent経由のカスタムイベントでタッチ操作取得
 		// - TODO: 作業中の仮組
 		// - 最終的には、スワイプで90度単位の左右回転・タップで前進という挙動にしたい。
+
+		canvasElement.addEventListener('window.mousedown', () => {
+			if (!this.interactable) return
+			events.UI.Disable.broadcast()
+			this.dragging = true
+
+		})
+
 		canvasElement.addEventListener('window.mousemove', (event: CustomEvent) => { //TODO: イベント名は一箇所にまとめる
 			// TEST: 試しにマウスで動かしてみる
+
+			// 入力制御
+			if (!this.dragging) return
 
 			// カメラ回転: 横方向
 			this.camera.rotation.y -= event.detail.delta.x / this.uiEvent.referenceLength * 5.0
 
-			// カメラ回転: 縦方向
-			// this.camera.rotation.x -= event.detail.delta.y / this.uiEvent.referenceLength * 5.0
-			this.camera.translateZ(event.detail.delta.y / this.uiEvent.referenceLength * -400.0)
+			if (this.camera.rotation.y > Math.PI * 2) this.camera.rotation.y -= Math.PI * 2
+			if (this.camera.rotation.y < 0) this.camera.rotation.y += Math.PI * 2
+
+			// console.log("mouse y : " + this.camera.rotation.y)
+
+			// カメラ回転: 縦方向移動 - 一旦オフ
+			// this.camera.translateZ(event.detail.delta.y / this.uiEvent.referenceLength * -400.0)
 
 			this.dirty = true
+		})
+		canvasElement.addEventListener('window.mouseup', () => {
+
+			//一番近い「上下左右どこか」に向かってTweenする
+			//onUpdateで、数字は 0〜(Math.PI * 2)の間に収まっている状態。
+			// 検討: 以下の計算は場当たりすぎる……もっと頭いい書き方があると思う。まあ、動くのでとりあえずはこれで。
+
+			let start = this.camera.rotation.y
+			let target: number
+			if (start < Math.PI / 4 * 1) {
+				target = 0
+			} else if (start < Math.PI / 4 * 3) {
+				target = Math.PI / 4 * 2
+			} else if (start < Math.PI / 4 * 5) {
+				target = Math.PI / 4 * 4
+			} else if (start < Math.PI / 4 * 7) {
+				target = Math.PI / 4 * 6
+			} else {
+				target = Math.PI / 4 * 8
+			}
+
+
+			Tween.To({
+				duration: 100,
+				onUpdate: (progress) => {
+					this.camera.rotation.y = start + (target - start) * progress
+					broadcastPlayerRotate()
+					this.dirty = true
+				},
+				onComplete: () => {
+					this.camera.rotation.y = target
+					broadcastPlayerRotate()
+					this.dirty = true
+					this.dragging = false
+					events.UI.Enable.broadcast()
+				}
+
+			})
+
 		})
 
 		// ゲームイベント
 		events.Button.StepToForward.subscribe(this.constructor.name, () => {
-			events.UI.Disable.broadcast()
 
 			// note: translateで前進するのではなく、tweenさせたいので悩ましい。
 			// 3Dの数学には詳しくないので、ここでは雑にTHREE.jsでtranslateさせた結果を計算させることに。
@@ -113,6 +190,18 @@ export class GameScene {
 			const deltaX = this.camera.position.x - startX
 			this.camera.translateZ(this.BLOCK_WIDTH)
 
+			// 壁にぶつかるかチェック
+			// FIXME: カメラ座標は1ブロック100。ただfloorすると浮動小数点演算誤差で99.99...とかになったりするので、+1してから100で割るという愚行。。MAPはインデックス管理したほうが良いかも？
+			const xIndex = Math.floor((startX + deltaX + 1) / 100);
+			const zIndex = Math.floor((startZ + deltaZ + 1) / 100);
+			if (this.maze.getCellKind(xIndex, zIndex) == Maze.CellKind.Block) {
+				// console.log(`HIT: Block`, startX, startZ, xIndex, zIndex)
+				return;
+			}
+			// console.log(`HIT: floor`, startX, startZ, xIndex, zIndex)
+
+			events.UI.Disable.broadcast()
+
 			Tween.To({
 				duration: 100,
 				onUpdate: (progress) => {
@@ -120,11 +209,13 @@ export class GameScene {
 					// this.camera.translateZ(-5)
 					this.camera.position.z = startZ + deltaZ * progress
 					this.camera.position.x = startX + deltaX * progress
+					broadcastPlayerMove()
 					this.dirty = true
 				},
 				onComplete: () => {
 					this.camera.position.z = startZ + deltaZ
 					this.camera.position.x = startX + deltaX
+					broadcastPlayerMove()
 					// console.log(`camera pos : `, this.camera.position)
 					this.dirty = true
 					events.UI.Enable.broadcast()
@@ -149,11 +240,13 @@ export class GameScene {
 					// this.camera.translateZ(-5)
 					this.camera.position.z = startZ + deltaZ * progress
 					this.camera.position.x = startX + deltaX * progress
+					broadcastPlayerMove()
 					this.dirty = true
 				},
 				onComplete: () => {
 					this.camera.position.z = startZ + deltaZ
 					this.camera.position.x = startX + deltaX
+					broadcastPlayerMove()
 					this.dirty = true
 					events.UI.Enable.broadcast()
 				}
@@ -167,10 +260,12 @@ export class GameScene {
 				duration: 300,
 				onUpdate: (progress) => {
 					this.camera.rotation.y = start - (Math.PI / 2 * progress)
+					broadcastPlayerRotate()
 					this.dirty = true
 				},
 				onComplete: () => {
 					this.camera.rotation.y = start - (Math.PI / 2)
+					broadcastPlayerRotate()
 					this.dirty = true
 					events.UI.Enable.broadcast()
 				}
@@ -184,10 +279,12 @@ export class GameScene {
 				duration: 300,
 				onUpdate: (progress) => {
 					this.camera.rotation.y = start + (Math.PI / 2 * progress)
+					broadcastPlayerRotate()
 					this.dirty = true
 				},
 				onComplete: () => {
 					this.camera.rotation.y = start + (Math.PI / 2)
+					broadcastPlayerRotate()
 					this.dirty = true
 					events.UI.Enable.broadcast()
 				}
@@ -328,6 +425,8 @@ export class GameScene {
 	//===================================
 	//scene take2: 迷路を受け取ってダンジョン生成
 	InitGameScene(maze: Maze.Maze) {
+
+		this.maze = maze
 		this.scene = new THREE.Scene()
 
 		//壁テクスチャ

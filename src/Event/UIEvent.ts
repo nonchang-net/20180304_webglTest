@@ -11,6 +11,10 @@ Copyright(C) nonchang.net All rights reserved.
 - UIとmainがバラバラにこいつにaddEventListenerするのかなぁ。
 - addEventListenerできるオブジェクトの最小単位って何だっけ。
 
+## TODO
+
+- CustomEventでもいいんだけど、GameEventsに統一しちゃったほうが楽かも
+
 */
 export default class UIEvent {
 
@@ -30,12 +34,12 @@ export default class UIEvent {
 
 		this.uiElement = uiElement //とりあえずevent受けるために置いてみたやつ。。
 
-		this.referenceLength = window.innerHeight
+		this.referenceLength = window.innerWidth
 
 		window.addEventListener('resize', () => {
 			this.uiElement.dispatchEvent(new Event("window.resize")) //TODO: イベント名は一箇所にまとめる
 			// console.log("window resize.");
-			this.referenceLength = window.innerHeight
+			this.referenceLength = window.innerWidth
 		})
 
 		// window.addEventListener('keydown', (event) => {
@@ -64,11 +68,13 @@ export default class UIEvent {
 		// console.log("touch start");
 		this.isTouched = true;
 		this.lastTouchPos = this.GetClientEventPoints(event)
+		this.uiElement.dispatchEvent(new CustomEvent("window.mousedown"));
 	}
 
 	TouchEnd() {
 		// console.log("touch end");
 		this.isTouched = false;
+		this.uiElement.dispatchEvent(new CustomEvent("window.mouseup"));
 	}
 
 	TouchMove(event: MouseEvent | TouchEvent) {

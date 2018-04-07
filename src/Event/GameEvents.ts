@@ -32,6 +32,8 @@ class CommonEvents {
 	// CancelFullScreen = new Event()
 	ToggleFullScreen = new Event()
 
+	PlayerMove = new Event<{ x: number, y: number }>()
+	PlayerRotate = new Event<number>()
 }
 
 class UIEvents {

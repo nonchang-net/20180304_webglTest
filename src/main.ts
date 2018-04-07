@@ -53,8 +53,6 @@ class Main {
 
 	constructor(body: HTMLBodyElement) {
 
-		console.log(`ver 20180325 1929`)
-
 		//基本セット初期化
 		const events = new GameEvents()
 
@@ -67,22 +65,35 @@ class Main {
 		// THREE.js用の3d canvas作成
 		const canvas = new Styler("canvas").appendTo(ui.main).getElement()
 		ui.main.appendChild(canvas)
+
+		// 3d canvasにマウス・タッチイベント登録
 		const uiEvent = new MyUIEvents(canvas)
 
-		// this.renderCanvas2d(canvas.getContext('2d'))
-
 		// 迷路情報初期化
-		var maze = new Maze.Factory().Create(9, 9)
+		// var maze = new Maze.Factory().Create(9, 9)
+		var maze = new Maze.Factory().Create(23, 23)
 
 		// マップUI初期化
-		const map = new MapView()
+		const map = new MapView(events, maze)
 
 		// ゲームシーン初期化
 		const game = new GameScene.GameScene(events, canvas, map, uiEvent, ui.main)
 
+		// メッセージシーンはgameの左下に合わせたい。
+
+		const testmessage = new Styler("div").abs().b().l().text("welcome to cage ver20180407 1524").appendTo(ui.main).getElement()
+		testmessage.style.color = "#fff"
+		testmessage.style.margin = "1em"
+		// testmessage.style.fontWeight = "bold"
+
+		//上下左右斜めのシャドウ＋右下にブラー付きのドロップシャドウ
+		testmessage.style.textShadow = "1px 1px 0 #000, -1px 1px 0 #000, 1px -1px 0 #000, -1px -1px 0 #000, 1px 0px 0 #000, -1px 0px 0 #000, 0px 1px 0 #000, 0px -1px 0 #000, 2px 2px 1px #000"
+
 		// マップUI更新
 		ui.main.appendChild(map.element)
-		map.update(maze)
+		ui.main.appendChild(map.playerMarkCanvas)
+		map.update()
+		// map.updatePlayerMark(1, 1)
 
 
 		// console.log(maze);

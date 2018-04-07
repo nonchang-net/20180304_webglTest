@@ -60,18 +60,21 @@ export default class UI {
 		mainContent.style.display = "flex";
 		mainContent.style.flex = "1";
 
-		//ヘッダー
-		const h1 = new Styler("h1").abs().getElement()
-		h1.style.fontSize = "12px"
-		h1.innerText = "test 20180401 18:32"
-		h1.style.color = "white"
-		mainContent.appendChild(h1)
+		//ヘッダーテスト
+		// const h1 = new Styler("h1").abs().getElement()
+		// h1.style.fontSize = "12px"
+		// h1.innerText = "test 20180401 18:32"
+		// h1.style.color = "white"
+		// mainContent.appendChild(h1)
 
 
-		//main枠
+		// main枠テスト
+		// mainContent.style.border = "solid 5px red"
 		// mainContent.style.border = "solid"
 		// mainContent.style.borderWidth = "40px 40px 40px 40px"
 		// mainContent.style.borderImage = "url(UI/borderimage_sample.png) 40 40 40 40 fill repeat"
+
+		mainContent.style.position = "relative"
 
 		// 下部ボタンUI injection
 		const buttons = new ButtonClasses.Buttons((elm: HTMLElement) => {
