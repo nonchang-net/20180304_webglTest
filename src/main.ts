@@ -54,6 +54,10 @@ class Main {
 	private dirty: boolean = true
 
 	constructor(body: HTMLBodyElement) {
+		this.initAsync(body)
+	}
+
+	private async initAsync(body: HTMLBodyElement) {
 
 		// イベント初期化
 		// - 初期化時にイベント登録を行うモジュールが多いため、最初に実行する必要がある
@@ -113,7 +117,7 @@ class Main {
 
 		// ゲームシーン初期化
 		const game = new GameScene.GameScene(events, canvas, map, uiEvent, ui.main)
-		game.InitGameScene(maze)
+		await game.InitGameScene(maze)
 
 
 		// welcomeメッセージとバージョン情報
@@ -125,7 +129,8 @@ class Main {
 			events.UI.AddMessage.broadcast("あなたは前に進んだ。")
 			if (Math.random() * 3 > 1) {
 				//試しにエンカウントデバッグ
-				console.log(`test : ${master.monsters.defs[0]}.name`);
+				const monsterIndex = Math.floor(Math.random() * master.monsters.defs.length)
+				console.log(`test : ${master.monsters.defs[monsterIndex].name}`);
 			}
 		})
 		events.Button.TurnLeft.subscribe(this.constructor.name, () => {
