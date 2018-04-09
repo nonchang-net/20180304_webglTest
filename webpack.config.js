@@ -15,14 +15,12 @@ module.exports = {
     filename: 'main.js'
   },
   module: {
-    rules: [
-      {
-        // 拡張子 .ts の場合
-        test: /\.ts$/,
-        // TypeScript をコンパイルする
-        use: 'ts-loader'
-      }
-    ]
+    rules: [{
+      // 拡張子 .ts の場合
+      test: /\.ts$/,
+      // TypeScript をコンパイルする
+      use: 'ts-loader'
+    }]
   },
   // import 文で .ts ファイルを解決するため
   resolve: {
@@ -41,10 +39,10 @@ module.exports = {
   },
 
   plugins: [
-    new CopyWebpackPlugin([
-      {
-        from: 'assets'
-      },
-    ])
+    new CopyWebpackPlugin([{
+      from: 'assets'
+    }, ], {
+      ignore: ['*.blend', '*.blend1']
+    })
   ],
 };

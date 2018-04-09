@@ -191,9 +191,9 @@ export class GameScene {
 			this.camera.translateZ(this.BLOCK_WIDTH)
 
 			// 壁にぶつかるかチェック
-			// FIXME: カメラ座標は1ブロック100。ただfloorすると浮動小数点演算誤差で99.99...とかになったりするので、+1してから100で割るという愚行。。MAPはインデックス管理したほうが良いかも？
-			const xIndex = Math.floor((startX + deltaX + 1) / 100);
-			const zIndex = Math.floor((startZ + deltaZ + 1) / 100);
+			// FIXME: カメラ座標は1ブロック100。ただfloorすると浮動小数点演算誤差で99.99...とかになったりするので、+1してからBLOCK_WIDTHで割るという愚行。。MAPはインデックス管理したほうが良いかも？
+			const xIndex = Math.floor((startX + deltaX + 1) / this.BLOCK_WIDTH);
+			const zIndex = Math.floor((startZ + deltaZ + 1) / this.BLOCK_WIDTH);
 			if (this.maze.getCellKind(xIndex, zIndex) == Maze.CellKind.Block) {
 				// console.log(`HIT: Block`, startX, startZ, xIndex, zIndex)
 				events.UI.AddMessage.broadcast("いてっ！")
@@ -356,7 +356,7 @@ export class GameScene {
 
 		if (!this.dirty) return
 
-		// console.log(`pos = ${Math.floor(this.camera.position.x)} : ${Math.floor(this.camera.position.z)} : rot = ${Math.floor(this.camera.rotation.y*100)}`);
+		// console.log(`pos = ${Math.floor(this.camera.position.x)} : ${Math.floor(this.camera.position.z)} : rot = ${Math.floor(this.camera.rotation.y*this.BLOCK_WIDTH)}`);
 		this.renderer.render(this.scene, this.camera)
 		this.dirty = false
 	}
@@ -405,15 +405,14 @@ export class GameScene {
 		// カメラのアスペクト比を正す
 		this.camera.aspect = width / height
 
-		// note: 逆アスペクトをfovに乗算することで、画面横幅サイズを維持した画角になる
-		this.camera.fov = this.FOV * (height / width)
+		// note: 逆アスペクトをfovに乗算することで、画面横幅サイズを維持した画角になる（要検証）
+		this.camera.fov = this.FOV * (height / width) // * 0.8
 
 		this.camera.updateProjectionMatrix();
 
-		//ログ出しして算出した初期位置
-		// this.camera.position = new THREE.Vector3(100, 0, 700)
-		this.camera.position.x = 100
-		this.camera.position.z = 700
+		//初期位置（1,1）
+		this.camera.position.x = this.BLOCK_WIDTH * 1
+		this.camera.position.z = this.BLOCK_WIDTH * 1
 
 		this.dirty = true
 	}
@@ -452,6 +451,9 @@ export class GameScene {
 
 	InitGameScene2(maze: Maze.Maze) {
 
+		//テスト
+		this.LoadBlenderObject()
+
 		const PADDING = 0
 
 		//==================
@@ -464,6 +466,8 @@ export class GameScene {
 		});
 
 		// take1 - ワンメッシュを引き伸ばしたい
+		// - 何か失敗してる模様。
+
 		// const landGeometry = new THREE.PlaneGeometry(
 		// 	this.BLOCK_WIDTH * maze.cells.length * 2,
 		// 	this.BLOCK_WIDTH * maze.cells[0].length * 2,
@@ -473,7 +477,7 @@ export class GameScene {
 		// const landMesh = new THREE.Mesh(landGeometry, landMaterial);
 		// landMesh.position.set(
 		// 	0,
-		// 	-this.BLOCK_WIDTH /2 * -1,
+		// 	-this.BLOCK_WIDTH / 2 * -1,
 		// 	0
 		// );
 		// // landMesh.rotation.x = 90 * Math.PI / 180;
@@ -491,7 +495,8 @@ export class GameScene {
 				// XYZ座標を設定
 				meshTemp.position.set(
 					this.BLOCK_WIDTH * x,
-					this.BLOCK_WIDTH / 2 * -1,
+					// this.BLOCK_WIDTH / 2 * -1,
+					this.BLOCK_WIDTH / 2 * -0.4,// 底上げしてみる例（壁際で足元を見えるようにしたい
 					this.BLOCK_WIDTH * y
 				);
 				meshTemp.rotation.x = Math.PI / 2 * -1;
@@ -575,6 +580,7 @@ export class GameScene {
 				meshTemp.position.set(
 					this.BLOCK_WIDTH * x,
 					this.BLOCK_WIDTH / 2,
+					// this.BLOCK_WIDTH / 2 * 0.5,//少し下げて、奥行き感を出す例
 					this.BLOCK_WIDTH * y
 				);
 				meshTemp.rotation.x = Math.PI / 2;
@@ -615,7 +621,21 @@ export class GameScene {
 		this.Tick()
 	}
 
+	LoadBlenderObject() {
+		// Blenderで出力したjsonファイルの読み込み
+		const json = './models/20180408_crystal.json';
 
+		const loader = new THREE.ObjectLoader();
+		loader.load(json, (obj) => {
+			obj.position.set(200, 0, 100)
+			obj.scale.set(10, 10, 10);
+			setInterval(() => {
+				obj.rotateOnAxis(new THREE.Vector3(0, 1, 0), 0.05)
+				this.dirty = true
+			}, 33.3)
+			this.scene.add(obj);
+		});
+	}
 
 
 
