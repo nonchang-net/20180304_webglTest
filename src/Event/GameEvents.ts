@@ -19,6 +19,7 @@ export default class Events {
 	Common = new CommonEvents()
 	UI = new UIEvents()
 	Button = new ButtonEvents()
+	Sound = new SoundEvents()
 	// Battle = new BattleEvents()
 	// FloorEffect = new FloorEffectEvents()
 
@@ -52,6 +53,12 @@ class ButtonEvents {
 	TurnLeft = new Event()
 	StepToForward = new Event()
 	StepToBack = new Event()
+}
+
+class SoundEvents {
+	TurnBgmOn = new Event()
+	TurnBgmOff = new Event()
+	ToggleBgm = new Event()
 }
 
 class DebugEvents {

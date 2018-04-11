@@ -8,32 +8,35 @@ Copyright(C) nonchang.net All rights reserved.
 - webpackビルドのエントリポイントです。
 - `検討中` 極力、アプリ一般的に最低限必要な処理だけを記載しようと検討中。
 
+
 ## ここでやること
 
-- アプリ初期化
-- 実行に必要なcanvasタグの取得。
-	- （ここ以外で直接index.htmlのdomを取ることは避ける）
+- アプリ動作に必要な各モジュールの初期化のみとしたい。
+- 初期化順番の依存や、非同期初期化などの待機はここで全て吸収し、他で意識させないようにしたい。
 
 */
-import * as Sub from './sub';
-import UI from './UI/UI';
-import Keyboard from './UI/Keyboard';
-import Styler from './UI/Styler';
-import MyUIEvents from './Event/UIEvent';
-import GameEvents from './Event/GameEvents';
+import * as Sub from './sub'
+import UI from './UI/UI'
+import Keyboard from './UI/Keyboard'
+import Styler from './UI/Styler'
+import MyUIEvents from './Event/UIEvent'
+import GameEvents from './Event/GameEvents'
 
-import * as GameScene from './Scenes/GameScene';
-import SampleSound from './Sound/Synthesize/SampleSound';
-import * as Maze from './Dangeon/Maze';
-import MapView from './Scenes/MapView';
-import Messages from './UI/Messages';
+import * as GameScene from './Scenes/GameScene'
+
+import SoundManager from './Sound/SoundManager'
+import SampleSound from './Sound/Synthesize/SampleSound'
+
+import * as Maze from './Dangeon/Maze'
+import MapView from './Scenes/MapView'
+import Messages from './UI/Messages'
 
 import MasterData from './Data/MasterData'
-import UserData from './Data/UserData';
-import GameStateKind from './Data/GameStateKind';
+import UserData from './Data/UserData'
+import GameStateKind from './Data/GameStateKind'
 
-import Tween from './Common/Tween';
-import Popup from './UI/Popup';
+import Tween from './Common/Tween'
+import Popup from './UI/Popup'
 
 // Windowスコープを拡張: コンソールからMainのpublic要素にアクセスできるように
 // 例: console.log("test",window.Main.dirty) //note: 実行時はjavascriptなので、privateプロパティも参照できる点に注意
@@ -61,6 +64,9 @@ class Main {
 	}
 
 	private async initAsync(body: HTMLBodyElement) {
+
+		body.style.overflow = "hidden"
+
 		// イベント初期化
 		// - 初期化時にイベント登録を行うモジュールが多いため、最初に実行する必要がある
 		const events = new GameEvents()
@@ -140,6 +146,28 @@ class Main {
 		map.update()
 
 
+		// サウンド初期化
+		// TODO: マスター読ませてロード管理させたい
+		const soundManager = new SoundManager()
+		// console.log('soundManager setup start')
+		await soundManager.asyncSetup()
+		// console.log('soundManager setup finished')
+
+		const BGM_ENABLED_FLAG_KEY = 'BGM Enabled'
+		const bgmEnabledLocalStorageValue = localStorage.getItem(BGM_ENABLED_FLAG_KEY)
+		// console.log(bgmEnabledLocalStorageValue)
+		const bgmEnabled = !bgmEnabledLocalStorageValue ? false : bgmEnabledLocalStorageValue == "true"
+
+		if (bgmEnabled) {
+			soundManager.startBgm1()
+		}
+		events.Sound.ToggleBgm.subscribe(this.constructor.name, () => {
+			soundManager.toggleBgm1()
+			localStorage.setItem(BGM_ENABLED_FLAG_KEY, `${soundManager.bgm1IsPlaying}`)
+			console.log(`${soundManager.bgm1IsPlaying} `)
+		})
+
+
 		// ゲームシーン初期化
 		const game = new GameScene.GameScene(events, canvas, map, uiEvent, ui.main)
 		await game.InitGameScene(maze)
@@ -149,6 +177,7 @@ class Main {
 		events.UI.AddMessage.broadcast("welcome to cage [ver 20180411 22:28]")
 
 		// 移動イベントでメッセージを出すテスト
+		// TODO: どこにおくべきだろう？ 少なくとも、main.tsからは外したい。
 		events.Common.PlayerStepToForwardSuccess.subscribe(this.constructor.name, () => {
 			events.UI.AddMessage.broadcast("あなたは前に進んだ。")
 			if (Math.random() * 3 > 1) {
@@ -166,6 +195,9 @@ class Main {
 		events.Button.TurnRight.subscribe(this.constructor.name, () => {
 			events.UI.AddMessage.broadcast("あなたは右に回った。")
 		})
+
+
+
 
 	}// constructor
 

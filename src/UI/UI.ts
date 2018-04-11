@@ -31,6 +31,7 @@ import Styler from "./Styler"
 import * as ButtonClasses from "./Buttons"
 
 import Popup from "./Popup"
+import SoundManager from '../Sound/SoundManager';
 
 export default class UI {
 
@@ -129,8 +130,18 @@ export default class UI {
 							onclick: () => {
 								const contents = new Styler("div").flexVertical().middle().center().getElement()
 								new Styler("h2").text("ポップアップメニュー").appendTo(contents)
-								new Styler("p").text("TODO").appendTo(contents)
-								Popup.OpenConfirmPopup(contents)
+								new Styler("p").text(" ").appendTo(contents)
+								new Styler("p").text("============ BGM設定 ============").appendTo(contents)
+								const bgmToggleButton = new Styler('button').text('BGM再生トグル').appendTo(contents).getElement()
+								bgmToggleButton.style.padding = "1em"
+								bgmToggleButton.style.margin = "1em"
+								bgmToggleButton.style.marginBottom = "0"
+								bgmToggleButton.style.borderRadius = "1.1em"
+								bgmToggleButton.onclick = () => {
+									events.Sound.ToggleBgm.broadcast()
+								}
+
+								Popup.Open(contents)
 							}
 						},
 					]
