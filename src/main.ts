@@ -88,8 +88,8 @@ class Main {
 		new Styler("p").text("音楽データのダウンロードはメニューからいつでもできます。").appendTo(contents)
 		new Styler("p").text("ダウンロード済みのローカルストレージ中の音楽データは後から削除できます。").appendTo(contents)
 
-		const cancelled = await Popup.OpenOkCancel(contents)
-		console.log(`popup closed. ${cancelled}`)
+		// const cancelled = await Popup.OpenConfirmPopup(contents)
+		// console.log(`popup closed. ${cancelled}`)
 
 
 		// TEST: Reactive Property検討。とりあえず少ない記述で目標は達成？

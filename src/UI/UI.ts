@@ -30,6 +30,8 @@ import Utils from "../Common/Utils"
 import Styler from "./Styler"
 import * as ButtonClasses from "./Buttons"
 
+import Popup from "./Popup"
+
 export default class UI {
 
 	uiElement: HTMLElement
@@ -125,7 +127,10 @@ export default class UI {
 						{
 							text: "menu",
 							onclick: () => {
-								// console.log("test3")
+								const contents = new Styler("div").flexVertical().middle().center().getElement()
+								new Styler("h2").text("ポップアップメニュー").appendTo(contents)
+								new Styler("p").text("TODO").appendTo(contents)
+								Popup.OpenConfirmPopup(contents)
 							}
 						},
 					]

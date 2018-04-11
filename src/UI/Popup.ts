@@ -16,20 +16,19 @@ export default class Popup {
 
 	private cancelled = false
 
-	static async OpenOkCancel(content: HTMLElement) {
+	static async OpenConfirmPopup(content: HTMLElement) {
 		const popup = new Popup()
-		return popup.open(content)
+		return popup.openConfirmPopup(content)
 	}
 
-	private async open(content: HTMLElement): Promise<boolean> {
+	private async openConfirmPopup(content: HTMLElement): Promise<boolean> {
 		const body = document.querySelector('body')
 		const popup = new Styler("div").appendTo(body).abs().fullWindow().flexVertical().middle().getElement()
 		popup.style.opacity = "0"
 		popup.style.padding = "10px"
 		popup.style.background = "rgba(0,0,0,0.7)"
-		// popup.style.border = "1px solid green"
 
-		// コンテンツの枠TODO
+		// コンテンツの枠
 		const contents = new Styler("div").appendTo(popup).getElement()
 		// contents.style.width = "100%"
 		// contents.style.height = "100%"
@@ -40,7 +39,7 @@ export default class Popup {
 
 		contents.appendChild(content)
 
-		// TODO: OK/Cancelボタンのレイアウトまともにしたい
+		// OK/Cancelボタンのレイアウト
 		const bottomButtons = new Styler("div").flexHorizontal().appendTo(contents).getElement()
 		bottomButtons.style.justifyContent = "center"
 		const yes = new Styler("button").text("OK").appendTo(bottomButtons).getElement()
