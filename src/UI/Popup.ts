@@ -73,7 +73,8 @@ export default class Popup {
 						popup.style.opacity = `${1 - v}`
 					},
 					onComplete: () => {
-						popup.style.display = "none"
+						// popup.style.display = "none"
+						body.removeChild(popup)
 						resolve(this.cancelled)
 					}
 				})

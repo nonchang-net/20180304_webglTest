@@ -197,13 +197,12 @@ export class GameScene {
 			const xIndex = Math.floor((startX + deltaX + 1) / this.BLOCK_WIDTH);
 			const zIndex = Math.floor((startZ + deltaZ + 1) / this.BLOCK_WIDTH);
 			if (this.maze.getCellKind(xIndex, zIndex) == Maze.CellKind.Block) {
-				// console.log(`HIT: Block`, startX, startZ, xIndex, zIndex)
-				events.UI.AddMessage.broadcast("いてっ！")
+				events.Common.PlayerStepToForwardAndHitBlock.broadcast()
 				return;
 			}
-			// console.log(`HIT: floor`, startX, startZ, xIndex, zIndex)
 
 			events.UI.Disable.broadcast()
+			events.Common.PlayerStepToForwardSuccess.broadcast()
 
 			Tween.To({
 				duration: 100,
@@ -227,7 +226,6 @@ export class GameScene {
 		})
 
 		events.Button.StepToBack.subscribe(this.constructor.name, () => {
-			events.UI.Disable.broadcast()
 
 			const startZ = this.camera.position.z
 			const startX = this.camera.position.x
@@ -235,6 +233,17 @@ export class GameScene {
 			const deltaZ = this.camera.position.z - startZ
 			const deltaX = this.camera.position.x - startX
 			this.camera.translateZ(-this.BLOCK_WIDTH)
+
+			// 壁にぶつかるかチェック
+			// FIXME: カメラ座標は1ブロック100。ただfloorすると浮動小数点演算誤差で99.99...とかになったりするので、+1してからBLOCK_WIDTHで割るという愚行。。MAPはインデックス管理したほうが良いかも？
+			const xIndex = Math.floor((startX + deltaX + 1) / this.BLOCK_WIDTH);
+			const zIndex = Math.floor((startZ + deltaZ + 1) / this.BLOCK_WIDTH);
+			if (this.maze.getCellKind(xIndex, zIndex) == Maze.CellKind.Block) {
+				events.Common.PlayerStepToForwardAndHitBlock.broadcast()
+				return;
+			}
+
+			events.UI.Disable.broadcast()
 
 			Tween.To({
 				duration: 100,
@@ -425,17 +434,24 @@ export class GameScene {
 		this.scene = new THREE.Scene()
 
 		const textures = new Textures()
+
+		//TODO: loading bar
+		console.log("load texture... wall")
 		await textures.LoadWall()
+		console.log("load texture... land")
 		await textures.LoadLand()
 
 		// TEST: Blender出力オブジェクト読み込み
-		// とりあえず回す
+		console.log("load model... crystal")
 		await textures.LoadBlenderObject()
 		this.scene.add(textures.crystal)
+		// とりあえず回す
 		setInterval(() => {
 			textures.crystal.rotateOnAxis(new THREE.Vector3(0, 1, 0), 0.05)
 			this.dirty = true
 		}, 33.3)
+
+		console.log("loading done.");
 
 
 		const PADDING = 0

@@ -79,20 +79,23 @@ class Main {
 		// - 初期化タイミングは実際にはどこになるだろう？
 		// - セーブデータを自動読み込みするのであれば、UserData初期化のあとになるだろうか。
 
-		const contents = new Styler("div").flexVertical().middle().center().getElement()
+		// const contents = new Styler("div").flexVertical().middle().center().getElement()
 
-		new Styler("p").text(" - [ゲームタイトル] - ").appendTo(contents)
-		new Styler("h2").text("音楽を再生しますか？").appendTo(contents)
-		// new Styler("hr").appendTo(contents)
-		new Styler("p").text("再生する場合、10.2MBの事前ダウンロードが始まります。").appendTo(contents)
-		new Styler("p").text("音楽データのダウンロードはメニューからいつでもできます。").appendTo(contents)
-		new Styler("p").text("ダウンロード済みのローカルストレージ中の音楽データは後から削除できます。").appendTo(contents)
+		// new Styler("p").text(" - [ゲームタイトル] - ").appendTo(contents)
+		// new Styler("h2").text("音楽を再生しますか？").appendTo(contents)
+		// // new Styler("hr").appendTo(contents)
+		// new Styler("p").text("再生する場合、10.2MBの事前ダウンロードが始まります。").appendTo(contents)
+		// new Styler("p").text("音楽データのダウンロードはメニューからいつでもできます。").appendTo(contents)
+		// new Styler("p").text("ダウンロード済みのローカルストレージ中の音楽データは後から削除できます。").appendTo(contents)
 
 		// const cancelled = await Popup.OpenConfirmPopup(contents)
 		// console.log(`popup closed. ${cancelled}`)
 
 
+
+
 		// TEST: Reactive Property検討。とりあえず少ない記述で目標は達成？
+
 		// user.gameState.subscribe(this.constructor.name, (state) => {
 		// 	console.log(`state changed. ${state}`)
 		// })
@@ -143,17 +146,19 @@ class Main {
 
 
 		// welcomeメッセージとバージョン情報
-		events.UI.AddMessage.broadcast("welcome to cage [ver 20180407 19:13]")
+		events.UI.AddMessage.broadcast("welcome to cage [ver 20180411 22:28]")
 
 		// 移動イベントでメッセージを出すテスト
-		events.Button.StepToForward.subscribe(this.constructor.name, () => {
-			//TODO: 壁で歩けなかった時はメッセージ出さないようにしたい。引数で状況送るべき？
+		events.Common.PlayerStepToForwardSuccess.subscribe(this.constructor.name, () => {
 			events.UI.AddMessage.broadcast("あなたは前に進んだ。")
 			if (Math.random() * 3 > 1) {
 				//試しにエンカウントデバッグ
 				const monsterIndex = Math.floor(Math.random() * master.monsters.defs.length)
 				console.log(`test : ${master.monsters.defs[monsterIndex].name}`);
 			}
+		})
+		events.Common.PlayerStepToForwardAndHitBlock.subscribe(this.constructor.name, () => {
+			events.UI.AddMessage.broadcast("いてっ！")
 		})
 		events.Button.TurnLeft.subscribe(this.constructor.name, () => {
 			events.UI.AddMessage.broadcast("あなたは左に回った。")

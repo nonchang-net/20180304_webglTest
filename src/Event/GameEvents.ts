@@ -34,6 +34,9 @@ class CommonEvents {
 
 	PlayerMove = new Event<{ x: number, y: number }>()
 	PlayerRotate = new Event<number>()
+
+	PlayerStepToForwardSuccess = new Event()
+	PlayerStepToForwardAndHitBlock = new Event()
 }
 
 class UIEvents {
