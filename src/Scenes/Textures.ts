@@ -14,8 +14,6 @@ export default class Textures {
 
 	crystal: THREE.Object3D
 
-	//===================================
-	//scene take2: 迷路を受け取ってダンジョン生成
 	async LoadWall() {
 		//壁テクスチャ
 		//TODO: 警告出てる。`Use THREE.TextureLoader() instead`
@@ -28,12 +26,14 @@ export default class Textures {
 		//TODO: 警告出てる。`Use THREE.TextureLoader() instead`
 		this.land = await THREE.ImageUtils.loadTexture("textures/sample/land01.jpg", null)
 		this.land.anisotropy = 16
+
+		// 以下はリピート設定のテスト
 		// this.land.wrapS = THREE.RepeatWrapping;
 		// this.land.wrapT = THREE.RepeatWrapping;
 		// this.land.repeat.set(maze.cells.length, maze.cells[0].length);
 	}
 
-	async LoadBlenderObject() {
+	async LoadBlenderObject(): Promise<{}> {
 		// Blenderで出力したjsonファイルの読み込み
 		const jsonPath = './models/20180408_crystal.json';
 

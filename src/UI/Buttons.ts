@@ -322,12 +322,6 @@ class Button {
 		})
 	}
 
-	//ダブルバッファ付きボタン表現を行いたい。さてどうしよう。
-	async transition(shift: number = 0, updateData: IUpdateDataButton) {
-		this.isFrontPlane = !this.isFrontPlane
-		//多分ここで上記のTween.Toを二回呼ぶ必要がある。さてどうしよう。
-	}
-
 	// async anim(shift: number = 0, show: boolean, progress: boolean = true) {
 	// 	//TODO: 上のをまとめたい……。
 	// 	this.isAnimation = true
@@ -360,6 +354,14 @@ class Button {
 	// 			this.resetStyle()
 	// 		}
 	// 	})
+	// }
+
+
+	// 前のが消える前に新しいのが出てくるように、ダブルバッファ付きボタン表現を行いたい。どう実装するのが手軽だろう？
+	// →速度次第では不要かも。一旦実装保留中。
+	// async transition(shift: number = 0, updateData: IUpdateDataButton) {
+	// 	this.isFrontPlane = !this.isFrontPlane
+	// 	//多分ここで上記のTween.Toを二回呼ぶ必要がある。さてどうしよう。
 	// }
 
 }

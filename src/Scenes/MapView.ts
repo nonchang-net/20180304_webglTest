@@ -9,7 +9,7 @@ export default class MapView {
 	// private canvasElement: HTMLCanvasElement
 	private context: CanvasRenderingContext2D
 
-	private readonly CellDrawSize = 6
+	private readonly CellDrawSize = 4
 
 	private maze: Maze.Maze
 

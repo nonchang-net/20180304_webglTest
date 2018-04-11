@@ -16,21 +16,24 @@ Copyright(C) nonchang.net All rights reserved.
 
 */
 import * as Sub from './sub';
-import { default as UI } from './UI/UI';
-import { default as Keyboard } from './UI/Keyboard';
-import { default as Styler } from './UI/Styler';
-import { default as MyUIEvents } from './Event/UIEvent';
-import { default as GameEvents } from './Event/GameEvents';
+import UI from './UI/UI';
+import Keyboard from './UI/Keyboard';
+import Styler from './UI/Styler';
+import MyUIEvents from './Event/UIEvent';
+import GameEvents from './Event/GameEvents';
 
 import * as GameScene from './Scenes/GameScene';
-import { default as SampleSound } from './Sound/Synthesize/SampleSound';
+import SampleSound from './Sound/Synthesize/SampleSound';
 import * as Maze from './Dangeon/Maze';
-import { default as MapView } from './Scenes/MapView';
+import MapView from './Scenes/MapView';
 import Messages from './UI/Messages';
 
 import MasterData from './Data/MasterData'
 import UserData from './Data/UserData';
 import GameStateKind from './Data/GameStateKind';
+
+import Tween from './Common/Tween';
+import Popup from './UI/Popup';
 
 // Windowスコープを拡張: コンソールからMainのpublic要素にアクセスできるように
 // 例: console.log("test",window.Main.dirty) //note: 実行時はjavascriptなので、privateプロパティも参照できる点に注意
@@ -58,17 +61,36 @@ class Main {
 	}
 
 	private async initAsync(body: HTMLBodyElement) {
-
 		// イベント初期化
 		// - 初期化時にイベント登録を行うモジュールが多いため、最初に実行する必要がある
 		const events = new GameEvents()
 
+		// マスターデータ初期化
+		// TODO: マスターデータ更新通信はService Worker？ この辺知識が足りてないので要調査。
 		const master = new MasterData()
 		master.asyncSetup(0)
 
 		console.log("master dump", master.monsters.defs)
 
 		const user = new UserData()
+
+
+		// 初回アクセスポップアップ実装テスト
+		// - 初期化タイミングは実際にはどこになるだろう？
+		// - セーブデータを自動読み込みするのであれば、UserData初期化のあとになるだろうか。
+
+		const contents = new Styler("div").flexVertical().middle().center().getElement()
+
+		new Styler("p").text(" - [ゲームタイトル] - ").appendTo(contents)
+		new Styler("h2").text("音楽を再生しますか？").appendTo(contents)
+		// new Styler("hr").appendTo(contents)
+		new Styler("p").text("再生する場合、10.2MBの事前ダウンロードが始まります。").appendTo(contents)
+		new Styler("p").text("音楽データのダウンロードはメニューからいつでもできます。").appendTo(contents)
+		new Styler("p").text("ダウンロード済みのローカルストレージ中の音楽データは後から削除できます。").appendTo(contents)
+
+		const cancelled = await Popup.OpenOkCancel(contents)
+		console.log(`popup closed. ${cancelled}`)
+
 
 		// TEST: Reactive Property検討。とりあえず少ない記述で目標は達成？
 		// user.gameState.subscribe(this.constructor.name, (state) => {
@@ -139,9 +161,6 @@ class Main {
 		events.Button.TurnRight.subscribe(this.constructor.name, () => {
 			events.UI.AddMessage.broadcast("あなたは右に回った。")
 		})
-
-		// サンプルサウンド初期化: 成功、実装は保留で。
-		// new SampleSound();
 
 	}// constructor
 

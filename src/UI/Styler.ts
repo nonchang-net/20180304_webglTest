@@ -127,6 +127,11 @@ export default class Styler<T extends keyof HTMLElementTagNameMap>{
 		return this
 	}
 
+	center(): Styler<T> {
+		this.elm.style.textAlign = "center"
+		return this
+	}
+
 	//flexbox
 
 	flexHorizontal(): Styler<T> {
@@ -141,6 +146,11 @@ export default class Styler<T extends keyof HTMLElementTagNameMap>{
 	}
 	glow(num: number = 1): Styler<T> {
 		this.elm.style.flexGrow = `${num}`
+		return this
+	}
+	middle(): Styler<T> {
+		this.elm.style.justifyContent = "center"
+		this.elm.style.alignItems = "center"
 		return this
 	}
 
