@@ -36,6 +36,7 @@ export default class Popup {
 		this.popup.style.opacity = "0"
 		this.popup.style.padding = "10px"
 		this.popup.style.background = "rgba(0,0,0,0.7)"
+		this.popup.style.zIndex = "10"
 
 		// コンテンツの枠
 		this.contents = new Styler("div").appendTo(this.popup).getElement()

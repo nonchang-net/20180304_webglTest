@@ -49,6 +49,7 @@ export default class UI {
 			.getElement()
 			;
 		body.appendChild(this.uiElement)
+		// this.uiElement.style.zIndex = "1"
 
 		this.uiElement.style.overflow = `hidden`
 		this.uiElement.style.width = "100%";
@@ -91,6 +92,7 @@ export default class UI {
 		})
 		this.uiElement.appendChild(buttons.element)
 		buttons.element.style.background = "url(UI/texturemate_metal10_small.jpg)"
+		buttons.element.style.zIndex = "1"
 		buttons.element.style.backgroundSize = "cover"
 		// this.uiElement.style.backgroundColor = "rgba(1,1,1,0.5)"
 
@@ -140,6 +142,9 @@ export default class UI {
 								bgmToggleButton.onclick = () => {
 									events.Sound.ToggleBgm.broadcast()
 								}
+								new Styler("p").text("============ 権利表記 ============").appendTo(contents)
+								new Styler("p").html(`顔グラフィックスは <a href="http://roughsketch.en-grey.com/%E7%B4%A0%E6%9D%90%E3%82%A4%E3%83%B3%E3%83%87%E3%83%83%E3%82%AF%E3%82%B9" target="_blank">三日月アルペジオ</a>様の無料素材を利用しています。`).appendTo(contents)
+
 
 								Popup.Open(contents)
 							}

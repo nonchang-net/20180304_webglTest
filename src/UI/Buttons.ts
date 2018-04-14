@@ -54,6 +54,9 @@ export class Buttons {
 		this.element = new Styler("div")
 			.getElement()
 			;
+
+		this.element.style.boxShadow = "0 0 5px 5px rgba(0,0,0,1) "
+
 		const row1 = new ButtonRow(styler)
 		this.element.appendChild(row1.element)
 		// row1.element.style.margin = "5px 0"

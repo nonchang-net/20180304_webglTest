@@ -37,6 +37,7 @@ import GameStateKind from './Data/GameStateKind'
 
 import Tween from './Common/Tween'
 import Popup from './UI/Popup'
+import { default as CharacterStatus, FaceKind } from './UI/CharacterStatus';
 
 // Windowスコープを拡張: コンソールからMainのpublic要素にアクセスできるように
 // 例: console.log("test",window.Main.dirty) //note: 実行時はjavascriptなので、privateプロパティも参照できる点に注意
@@ -76,7 +77,7 @@ class Main {
 		const master = new MasterData()
 		master.asyncSetup(0)
 
-		console.log("master dump", master.monsters.defs)
+		// console.log("master dump", master.monsters.defs)
 
 		const user = new UserData()
 
@@ -164,7 +165,7 @@ class Main {
 		events.Sound.ToggleBgm.subscribe(this.constructor.name, () => {
 			soundManager.toggleBgm1()
 			localStorage.setItem(BGM_ENABLED_FLAG_KEY, `${soundManager.bgm1IsPlaying}`)
-			console.log(`${soundManager.bgm1IsPlaying} `)
+			// console.log(`${soundManager.bgm1IsPlaying} `)
 		})
 
 
@@ -183,11 +184,29 @@ class Main {
 			if (Math.random() * 3 > 1) {
 				//試しにエンカウントデバッグ
 				const monsterIndex = Math.floor(Math.random() * master.monsters.defs.length)
-				console.log(`test : ${master.monsters.defs[monsterIndex].name}`);
+				// console.log(`test : ${master.monsters.defs[monsterIndex].name}`);
 			}
 		})
 		events.Common.PlayerStepToForwardAndHitBlock.subscribe(this.constructor.name, () => {
+			events.UI.Disable.broadcast()
 			events.UI.AddMessage.broadcast("いてっ！")
+			for (let st of statuses) st.setFaceKind(FaceKind.Damaged)
+			// console.log("testtest")
+
+			Tween.To({
+				duration: 300,
+				onUpdate: (x) => {
+					// ここで画面揺らす
+					canvas.style.transform = `scale(1.05, 1.05) translate(${Math.random() * (1 - x) * 10 - 5}px, ${Math.random() * (1 - x) * 10 - 5}px)`
+					// canvas.style.zIndex = ""
+				},
+				onComplete: () => {
+					canvas.style.transform = ``
+					for (let st of statuses) st.setFaceKind(FaceKind.Normal)
+					// console.log("testtest2")
+					events.UI.Enable.broadcast()
+				}
+			})
 		})
 		events.Button.TurnLeft.subscribe(this.constructor.name, () => {
 			events.UI.AddMessage.broadcast("あなたは左に回った。")
@@ -196,6 +215,50 @@ class Main {
 			events.UI.AddMessage.broadcast("あなたは右に回った。")
 		})
 
+		// ステータス表示テスト
+
+		const statusDiv = new Styler("div").abs().t(5).l(5).appendTo(ui.main).getElement()
+
+		const statuses = new Array<CharacterStatus>()
+
+		const stella = new CharacterStatus(
+			144,
+			"characters/mock/f-stella01_mv.png",
+			{ x: 0, y: 0 }, //normal face
+			{ x: 3, y: 0 }, //damaged face
+			"characters/mock/f-stella01_p.png",
+			"ステラ",
+			100, 80,
+			80, 30
+		)
+		statusDiv.appendChild(stella.element)
+		statuses.push(stella)
+
+		const lotti = new CharacterStatus(
+			144,
+			"characters/mock/f-Lotti_mv.png",
+			{ x: 0, y: 0 }, //normal face
+			{ x: 2, y: 0 }, //damaged face
+			"characters/mock/f-Lotti_p.png",
+			"ロッティ",
+			100, 80,
+			80, 30
+		)
+		statusDiv.appendChild(lotti.element)
+		statuses.push(lotti)
+
+		const may = new CharacterStatus(
+			144,
+			"characters/mock/f-may01.png",
+			{ x: 0, y: 0 }, //normal face
+			{ x: 3, y: 0 }, //damaged face
+			"characters/mock/f-may01_p.png",
+			"メイ",
+			100, 80,
+			80, 30
+		)
+		statusDiv.appendChild(may.element);
+		statuses.push(may)
 
 
 

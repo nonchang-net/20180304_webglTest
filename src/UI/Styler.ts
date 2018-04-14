@@ -21,6 +21,11 @@ export default class Styler<T extends keyof HTMLElementTagNameMap>{
 		return this
 	}
 
+	html(str: string): Styler<T> {
+		this.elm.innerHTML = str
+		return this
+	}
+
 	// set style shorthand
 
 	fullWindow(): Styler<T> {

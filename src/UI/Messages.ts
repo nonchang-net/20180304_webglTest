@@ -37,6 +37,7 @@ export default class Messages {
 
 		const element = new Styler("div").abs().b().l().getElement()
 		this.element = element
+		element.style.zIndex = "1"
 		element.style.color = "#fff"
 		element.style.margin = "1em"
 		element.style.fontWeight = "bold"
