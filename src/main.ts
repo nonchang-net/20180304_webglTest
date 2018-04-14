@@ -226,6 +226,14 @@ class Main {
 			"characters/mock/f-stella01_mv.png",
 			{ x: 0, y: 0 }, //normal face
 			{ x: 3, y: 0 }, //damaged face
+			{ //目ぱち定義
+				duration: -1,
+				frame: [
+					{ x: 2, y: 0 },
+					{ x: 2, y: 1 },
+					{ x: 2, y: 0 },
+				],
+			},
 			"characters/mock/f-stella01_p.png",
 			"ステラ",
 			100, 80,
@@ -239,6 +247,14 @@ class Main {
 			"characters/mock/f-Lotti_mv.png",
 			{ x: 0, y: 0 }, //normal face
 			{ x: 2, y: 0 }, //damaged face
+			// null,
+			{
+				duration: -1,
+				frame: [
+					{ x: 1, y: 1 },
+					{ x: 3, y: 0 },
+				]
+			},
 			"characters/mock/f-Lotti_p.png",
 			"ロッティ",
 			100, 80,
@@ -252,6 +268,13 @@ class Main {
 			"characters/mock/f-may01.png",
 			{ x: 0, y: 0 }, //normal face
 			{ x: 3, y: 0 }, //damaged face
+			// null,
+			{
+				duration: -1,
+				frame: [
+					{ x: 2, y: 1 }
+				]
+			},
 			"characters/mock/f-may01_p.png",
 			"メイ",
 			100, 80,

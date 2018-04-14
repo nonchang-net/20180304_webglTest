@@ -33,12 +33,20 @@ export default class CharacterStatus {
 	face: HTMLDivElement
 	normalFaceIndex: index
 	damageFaceIndex: index
+	eyeAnimationIndice: {
+		duration: number,
+		frame: Array<index>,
+	}
 
 	constructor(
 		faceImageSize: number,
 		faceImagePath: string,
 		normalFaceIndex: index,
 		damageFaceIndex: index,
+		eyeAnimationIndice: {
+			duration: number,
+			frame: Array<index>,
+		},
 		standImagePath: string,
 		name: string,
 		maxHp: number,
@@ -49,6 +57,7 @@ export default class CharacterStatus {
 
 		this.normalFaceIndex = normalFaceIndex
 		this.damageFaceIndex = damageFaceIndex
+		this.eyeAnimationIndice = eyeAnimationIndice
 
 		const elm = new Styler("div").flexHorizontal().getElement()
 		this.element = elm
@@ -72,7 +81,7 @@ export default class CharacterStatus {
 		face.style.flex = `0 1 ${this.FACE_IMAGE_SIZE}px`
 		face.style.backgroundSize = `${this.FACE_IMAGE_SIZE * 4}px ${this.FACE_IMAGE_SIZE * 2}px`
 
-		// this.setFaceIndex(damageFaceIndex)
+		// 顔インデックス初期化
 		this.setFaceIndex(normalFaceIndex)
 
 		// 右ペイン
@@ -112,6 +121,9 @@ export default class CharacterStatus {
 		mpBar.bar.set(0.8)
 		right.appendChild(mpBar.element)
 
+		//目パチ開始
+		this.startEyeAnimation()
+
 	}
 
 	//RPGツクール素材は4x2で並んでるので、そのうちどの顔グラフィックスを表示するか設定
@@ -133,6 +145,41 @@ export default class CharacterStatus {
 		}
 	}
 
+	//目パチアニメーション
+
+	eyeAnimationFrame = 0
+
+	CHARACTER_EYE_ANIMATION_NEXT_WAIT = 1000
+	CHARACTER_EYE_ANIMATION_NEXT_RANDOM = 2000
+	CHARACTER_EYE_ANIMATION_INTERAVAL = 150
+
+	private startEyeAnimation() {
+		// console.log(`eyeAnimation ${this.eyeAnimationFrame}`);
+
+		// 目パチ定義がなければnull return
+		if (!this.eyeAnimationIndice) return;
+
+		// console.log(`eye anim ${this.eyeAnimationFrame}`);
+
+		// フレームが残ってる
+		if (this.eyeAnimationIndice.frame.length > this.eyeAnimationFrame) {
+			console.log(this.eyeAnimationFrame)
+			this.setFaceIndex(this.eyeAnimationIndice.frame[this.eyeAnimationFrame])
+			this.eyeAnimationFrame++
+			setTimeout(() => { this.startEyeAnimation() }, this.CHARACTER_EYE_ANIMATION_INTERAVAL)
+			return;
+		}
+
+		// フレームが残ってない
+		this.eyeAnimationFrame = 0
+		this.setFaceIndex(this.normalFaceIndex)
+		setTimeout(() => { this.startEyeAnimation() },
+			Math.random()
+			* this.CHARACTER_EYE_ANIMATION_NEXT_RANDOM
+			+ this.CHARACTER_EYE_ANIMATION_NEXT_WAIT
+		)
+
+	}
 }
 
 class BarWithText {
@@ -183,7 +230,7 @@ class Bar {
 		const inner = new Styler("div").appendTo(elm).getElement()
 		this.inner = inner
 		// inner.style.background = `rgba(0,255,0,1)`
-		inner.style.background = `linear-gradient(180deg, rgba(0,255,14,1) 0%, rgba(42,121,9,1) 38%, rgba(31,255,0,1) 100%)`
+		inner.style.background = `linear-gradient(180deg, rgba(0,255,14,0.2) 0%, rgba(42,121,9,1) 30%, rgba(42,255,9,1) 40%, rgba(31,255,0,0.1) 100%)`
 		// inner.style.background = `linear-gradient(180deg, rgba(0,255,14,1) 0%, rgba(217,255,71,1) 38%, rgba(31,255,0,1) 100%)`
 		inner.style.height = `80%`
 		inner.style.margin = `1px`
