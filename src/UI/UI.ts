@@ -104,6 +104,41 @@ export default class UI {
 			buttons.interactable = false
 		})
 
+		const openCommands = async () => {
+			events.UI.AddMessage.broadcast("[コマンドメニューを開きます]")
+			events.UI.Disable.broadcast()
+			await buttons.hide()
+			buttons.update(commandMenu)
+			await buttons.show()
+			events.UI.Enable.broadcast()
+		}
+
+		const openMenu = () => {
+			const contents = new Styler("div").flexVertical().middle().center().getElement()
+			new Styler("h2").text("ポップアップメニュー").appendTo(contents)
+			new Styler("p").text(" ").appendTo(contents)
+			new Styler("p").text("============ BGM設定 ============").appendTo(contents)
+			const bgmToggleButton = new Styler('button').text('BGM再生トグル').appendTo(contents).getElement()
+			bgmToggleButton.style.padding = "1em"
+			bgmToggleButton.style.margin = "1em"
+			bgmToggleButton.style.marginBottom = "0"
+			bgmToggleButton.style.borderRadius = "1.1em"
+			bgmToggleButton.onclick = () => {
+				events.Sound.ToggleBgm.broadcast()
+			}
+			new Styler("p").text("============ 権利表記 ============").appendTo(contents)
+			new Styler("p").html(`顔グラフィックスは <a href="http://roughsketch.en-grey.com/%E7%B4%A0%E6%9D%90%E3%82%A4%E3%83%B3%E3%83%87%E3%83%83%E3%82%AF%E3%82%B9" target="_blank">三日月アルペジオ</a>様の無料素材を利用しています。`).appendTo(contents)
+			new Styler("p").html(`モンスターグラフィックスは <a href="http://raineru03.web.fc2.com/" target="_blank">HI-TIME様</a>様の無料素材を利用しています。`).appendTo(contents)
+			new Styler("p").html(`BGMはnonchang.netの著作物です。ライセンスはCC BYでご利用ください。`).appendTo(contents)
+
+			Popup.Open(contents)
+
+		}
+
+		events.Keyboard.Z.subscribe(this.constructor.name, openCommands)
+		events.Keyboard.X.subscribe(this.constructor.name, () => {
+			openMenu()
+		})
 
 		const mainMenu: ButtonClasses.IUpdateData = {
 			rows: [
@@ -111,14 +146,7 @@ export default class UI {
 					buttons: [
 						{
 							text: "command",
-							onclick: async () => {
-								events.UI.AddMessage.broadcast("[コマンドメニューを開きます]")
-								events.UI.Disable.broadcast()
-								await buttons.hide()
-								buttons.update(commandMenu)
-								await buttons.show()
-								events.UI.Enable.broadcast()
-							}
+							onclick: openCommands
 						},
 						{
 							text: "↑",
@@ -129,25 +157,7 @@ export default class UI {
 						},
 						{
 							text: "menu",
-							onclick: () => {
-								const contents = new Styler("div").flexVertical().middle().center().getElement()
-								new Styler("h2").text("ポップアップメニュー").appendTo(contents)
-								new Styler("p").text(" ").appendTo(contents)
-								new Styler("p").text("============ BGM設定 ============").appendTo(contents)
-								const bgmToggleButton = new Styler('button').text('BGM再生トグル').appendTo(contents).getElement()
-								bgmToggleButton.style.padding = "1em"
-								bgmToggleButton.style.margin = "1em"
-								bgmToggleButton.style.marginBottom = "0"
-								bgmToggleButton.style.borderRadius = "1.1em"
-								bgmToggleButton.onclick = () => {
-									events.Sound.ToggleBgm.broadcast()
-								}
-								new Styler("p").text("============ 権利表記 ============").appendTo(contents)
-								new Styler("p").html(`顔グラフィックスは <a href="http://roughsketch.en-grey.com/%E7%B4%A0%E6%9D%90%E3%82%A4%E3%83%B3%E3%83%87%E3%83%83%E3%82%AF%E3%82%B9" target="_blank">三日月アルペジオ</a>様の無料素材を利用しています。`).appendTo(contents)
-
-
-								Popup.Open(contents)
-							}
+							onclick: openMenu
 						},
 					]
 				},

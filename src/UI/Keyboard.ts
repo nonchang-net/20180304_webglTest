@@ -60,6 +60,16 @@ export default class Keyboard {
 			this.dirty = true //連続受付
 		}
 
+		// note: 90 = 「z」キー
+		if (this.pressed[90]) {
+			this.events.Keyboard.Z.broadcast()
+		}
+
+		// note: 88 = 「x」キー
+		if (this.pressed[88]) {
+			this.events.Keyboard.X.broadcast()
+		}
+
 		// カーソル
 		if (this.pressed[39]) {//right
 			// this.events.Debug.TestRight.broadcast()

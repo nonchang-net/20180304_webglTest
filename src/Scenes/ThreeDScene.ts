@@ -24,7 +24,7 @@ import { default as MapView } from "./MapView"
 import Textures from './Textures';
 
 // シーンラッパー
-// シーン管理クラスはこれを実装する
+// シーン管理クラスはこれを実装する？
 // export interface ISceneWrapper{
 
 // }
@@ -34,7 +34,7 @@ import Textures from './Textures';
 // }
 // export class SampleScene extends SceneWrapper{
 
-export class GameScene {
+export default class ThreeDScene {
 
 	public uiElement: HTMLElement
 	private canvasElement: HTMLCanvasElement
@@ -415,6 +415,7 @@ export class GameScene {
 
 		// カメラのアスペクト比を正す
 		this.camera.aspect = width / height
+		// this.camera.aspect = width / height * 3.2 // TODO: 横壁を見せたい場合にこんくらいまで広げると見えるという例。調整中。
 
 		// note: 逆アスペクトをfovに乗算することで、画面横幅サイズを維持した画角になる（要検証）
 		this.camera.fov = this.FOV * (height / width) // * 0.8

@@ -1,11 +1,11 @@
 {
   "scripts": {
-    "build": "webpack",
     "dev": "webpack-dev-server",
     "deploy": "webpack; aws --region ap-northeast-1 --profile nonchang-net-personal-AWS s3 sync --delete ./dist s3://nonchang.net/test/webgl"
   },
   "scripts_unuse": {
     "comment": "使ってないscriptsはここに一旦退避します",
+    "build": "webpack",
     "deploy-exact-timestamps": "webpack; aws --region ap-northeast-1 --profile nonchang-net-personal-AWS s3 sync --exact-timestamps --delete ./dist s3://nonchang.net/test/webgl",
     "watch": "webpack -w"
   },

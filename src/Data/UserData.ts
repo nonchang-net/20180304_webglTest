@@ -9,10 +9,23 @@
 
 import GameStateKind from './GameStateKind'
 import { ReactiveProperty } from '../Event/Event'
+import MasterData from './MasterData';
+import Party from './User/Party'
 
 export default class UserData {
 
-	public gameState = new ReactiveProperty(GameStateKind.Opening)
+	gameState = new ReactiveProperty(GameStateKind.Opening)
+
+	// TODO: ゲーム内通貨
+	// public coin = new ReactiveProperty(0)
+	// public freeGem = new ReactiveProperty(0)
+	// public paidGem = new ReactiveProperty(0)
+
+	party: Party
+
+	constructor(master: MasterData) {
+		this.party = new Party(master.characters)
+	}
 
 	Save() {
 

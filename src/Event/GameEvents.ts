@@ -20,9 +20,9 @@ export default class Events {
 	UI = new UIEvents()
 	Button = new ButtonEvents()
 	Sound = new SoundEvents()
+	Keyboard = new KeyboardEvents()
 	// Battle = new BattleEvents()
 	// FloorEffect = new FloorEffectEvents()
-
 	Debug = new DebugEvents()
 }
 
@@ -59,6 +59,11 @@ class SoundEvents {
 	TurnBgmOn = new Event()
 	TurnBgmOff = new Event()
 	ToggleBgm = new Event()
+}
+
+class KeyboardEvents {
+	Z = new Event()
+	X = new Event()
 }
 
 class DebugEvents {

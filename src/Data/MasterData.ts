@@ -7,18 +7,21 @@
  * - 開発中はモックアップjsonデータでそのままローカル起動する方針で進める。
  */
 import Monster from './Master/Monster'
+import { Character } from './Master/Character'
 
 export default class MasterData {
 
 	lastUpdate: number = -1
 
 	monsters: Monster = new Monster()
+	characters: Character = new Character()
 
 	async asyncSetup(lastUpdate: number) {
 		//TODO: S3からローカルストレージにlastUpdateを保存・読み込み
 		// - また、マスターデータクラス系の更新処理は共通処理なので継承関係にしていいと思う
 		if (this.lastUpdate < lastUpdate) {
 			await this.monsters.asyncSetup()
+			await this.characters.asyncSetup()
 			this.lastUpdate = lastUpdate
 			this.Save()
 		}

@@ -1,4 +1,7 @@
 import Styler from "./Styler";
+import Vector2 from "../Common/Vector2";
+import { Definition as CharacterDefinition } from "../Data/Master/Character"
+import { Character as UserCharacterData } from '../Data/User/Party'
 
 /*
 # CharacterStatus.ts
@@ -14,10 +17,6 @@ import Styler from "./Styler";
 
 */
 
-interface index {
-	x: number,
-	y: number
-}
 
 export enum FaceKind {
 	Normal,
@@ -31,33 +30,12 @@ export default class CharacterStatus {
 
 	element: HTMLDivElement
 	face: HTMLDivElement
-	normalFaceIndex: index
-	damageFaceIndex: index
-	eyeAnimationIndice: {
-		duration: number,
-		frame: Array<index>,
-	}
+	characterDefinition: CharacterDefinition
 
-	constructor(
-		faceImageSize: number,
-		faceImagePath: string,
-		normalFaceIndex: index,
-		damageFaceIndex: index,
-		eyeAnimationIndice: {
-			duration: number,
-			frame: Array<index>,
-		},
-		standImagePath: string,
-		name: string,
-		maxHp: number,
-		currentHp: number,
-		maxMp: number,
-		currentMp: number
-	) {
+	constructor(userCharacterData: UserCharacterData) {
 
-		this.normalFaceIndex = normalFaceIndex
-		this.damageFaceIndex = damageFaceIndex
-		this.eyeAnimationIndice = eyeAnimationIndice
+		//TODO: マスター定義ではなくユーザーデータそのものを渡してreactive propertyを変更検知したい
+		this.characterDefinition = userCharacterData.definition
 
 		const elm = new Styler("div").flexHorizontal().getElement()
 		this.element = elm
@@ -77,12 +55,12 @@ export default class CharacterStatus {
 		elm.appendChild(face)
 		face.style.height = `${this.FACE_IMAGE_SIZE}px`
 		face.style.width = `${this.FACE_IMAGE_SIZE}px`
-		face.style.background = `url(${faceImagePath}) 0 0`
+		face.style.background = `url(${this.characterDefinition.face.tileUrl}) 0 0`
 		face.style.flex = `0 1 ${this.FACE_IMAGE_SIZE}px`
 		face.style.backgroundSize = `${this.FACE_IMAGE_SIZE * 4}px ${this.FACE_IMAGE_SIZE * 2}px`
 
 		// 顔インデックス初期化
-		this.setFaceIndex(normalFaceIndex)
+		this.setFaceKind(FaceKind.Normal)
 
 		// 右ペイン
 		const right = new Styler("div").flexVertical().appendTo(elm).getElement()
@@ -90,7 +68,7 @@ export default class CharacterStatus {
 		right.style.flex = "1 1 auto"
 
 		// 名前
-		const nameParagraph = new Styler("p").text(name).appendTo(right).getElement()
+		const nameParagraph = new Styler("p").text(this.characterDefinition.name).appendTo(right).getElement()
 		// nameParagraph.style.borderBottom = "1px solid rgba(0,123,123,0.5)"
 		nameParagraph.style.background = "linear-gradient(90deg, rgba(45,69,60,0.3) 0%, rgba(43,59,41,0.6) 8%, rgba(111,111,111,0.4) 20%, rgba(241,244,255,0) 100%)"
 		nameParagraph.style.color = "white"
@@ -126,8 +104,9 @@ export default class CharacterStatus {
 
 	}
 
+
 	//RPGツクール素材は4x2で並んでるので、そのうちどの顔グラフィックスを表示するか設定
-	private setFaceIndex(index: index) {
+	private setFaceIndex(index: Vector2) {
 		const css = `${-1 * this.FACE_IMAGE_SIZE * index.x}px ${-1 * this.FACE_IMAGE_SIZE * index.y}px`
 		// const css = `${-1 * this.FACE_IMAGE_SIZE * index.x}px ${-1 * this.FACE_IMAGE_SIZE * index.y}px`
 		this.face.style.backgroundPosition = css
@@ -137,10 +116,10 @@ export default class CharacterStatus {
 	setFaceKind(kind: FaceKind) {
 		switch (kind) {
 			case FaceKind.Normal:
-				this.setFaceIndex(this.normalFaceIndex)
+				this.setFaceIndex(this.characterDefinition.face.normal)
 				break
 			case FaceKind.Damaged:
-				this.setFaceIndex(this.damageFaceIndex)
+				this.setFaceIndex(this.characterDefinition.face.damaged)
 				break
 		}
 	}
@@ -157,14 +136,15 @@ export default class CharacterStatus {
 		// console.log(`eyeAnimation ${this.eyeAnimationFrame}`);
 
 		// 目パチ定義がなければnull return
-		if (!this.eyeAnimationIndice) return;
+		if (!this.characterDefinition.face.eyeAnimation) return;
+		const eyeDef = this.characterDefinition.face.eyeAnimation
 
 		// console.log(`eye anim ${this.eyeAnimationFrame}`);
 
 		// フレームが残ってる
-		if (this.eyeAnimationIndice.frame.length > this.eyeAnimationFrame) {
-			console.log(this.eyeAnimationFrame)
-			this.setFaceIndex(this.eyeAnimationIndice.frame[this.eyeAnimationFrame])
+		if (eyeDef.frames.length > this.eyeAnimationFrame) {
+			// console.log(this.eyeAnimationFrame)
+			this.setFaceIndex(eyeDef.frames[this.eyeAnimationFrame])
 			this.eyeAnimationFrame++
 			setTimeout(() => { this.startEyeAnimation() }, this.CHARACTER_EYE_ANIMATION_INTERAVAL)
 			return;
@@ -172,7 +152,7 @@ export default class CharacterStatus {
 
 		// フレームが残ってない
 		this.eyeAnimationFrame = 0
-		this.setFaceIndex(this.normalFaceIndex)
+		this.setFaceIndex(this.characterDefinition.face.normal)
 		setTimeout(() => { this.startEyeAnimation() },
 			Math.random()
 			* this.CHARACTER_EYE_ANIMATION_NEXT_RANDOM

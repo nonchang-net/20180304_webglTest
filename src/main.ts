@@ -15,6 +15,9 @@ Copyright(C) nonchang.net All rights reserved.
 - 初期化順番の依存や、非同期初期化などの待機はここで全て吸収し、他で意識させないようにしたい。
 
 */
+
+import Vector2 from './Common/Vector2'
+
 import * as Sub from './sub'
 import UI from './UI/UI'
 import Keyboard from './UI/Keyboard'
@@ -22,7 +25,7 @@ import Styler from './UI/Styler'
 import MyUIEvents from './Event/UIEvent'
 import GameEvents from './Event/GameEvents'
 
-import * as GameScene from './Scenes/GameScene'
+import ThreeDScene from './Scenes/ThreeDScene'
 
 import SoundManager from './Sound/SoundManager'
 import SampleSound from './Sound/Synthesize/SampleSound'
@@ -57,7 +60,7 @@ window.addEventListener('DOMContentLoaded', () => {
 class Main {
 
 	private ui: UI
-	private gameScene: GameScene.GameScene //TODO: 名前重複修正
+	private gameScene: ThreeDScene
 	private dirty: boolean = true
 
 	constructor(body: HTMLBodyElement) {
@@ -79,7 +82,7 @@ class Main {
 
 		// console.log("master dump", master.monsters.defs)
 
-		const user = new UserData()
+		const user = new UserData(master)
 
 
 		// 初回アクセスポップアップ実装テスト
@@ -170,17 +173,17 @@ class Main {
 
 
 		// ゲームシーン初期化
-		const game = new GameScene.GameScene(events, canvas, map, uiEvent, ui.main)
+		const game = new ThreeDScene(events, canvas, map, uiEvent, ui.main)
 		await game.InitGameScene(maze)
 
 
 		// welcomeメッセージとバージョン情報
-		events.UI.AddMessage.broadcast("welcome to cage [ver 20180411 22:28]")
+		events.UI.AddMessage.broadcast("welcome to cage [ver 20180415 1828]")
 
 		// 移動イベントでメッセージを出すテスト
 		// TODO: どこにおくべきだろう？ 少なくとも、main.tsからは外したい。
 		events.Common.PlayerStepToForwardSuccess.subscribe(this.constructor.name, () => {
-			events.UI.AddMessage.broadcast("あなたは前に進んだ。")
+			events.UI.AddMessage.broadcast("あなたたちは前に進んだ。")
 			if (Math.random() * 3 > 1) {
 				//試しにエンカウントデバッグ
 				const monsterIndex = Math.floor(Math.random() * master.monsters.defs.length)
@@ -209,10 +212,10 @@ class Main {
 			})
 		})
 		events.Button.TurnLeft.subscribe(this.constructor.name, () => {
-			events.UI.AddMessage.broadcast("あなたは左に回った。")
+			events.UI.AddMessage.broadcast("あなたたちは左に回った。")
 		})
 		events.Button.TurnRight.subscribe(this.constructor.name, () => {
-			events.UI.AddMessage.broadcast("あなたは右に回った。")
+			events.UI.AddMessage.broadcast("あなたたちは右に回った。")
 		})
 
 		// ステータス表示テスト
@@ -221,67 +224,11 @@ class Main {
 
 		const statuses = new Array<CharacterStatus>()
 
-		const stella = new CharacterStatus(
-			144,
-			"characters/mock/f-stella01_mv.png",
-			{ x: 0, y: 0 }, //normal face
-			{ x: 3, y: 0 }, //damaged face
-			{ //目ぱち定義
-				duration: -1,
-				frame: [
-					{ x: 2, y: 0 },
-					{ x: 2, y: 1 },
-					{ x: 2, y: 0 },
-				],
-			},
-			"characters/mock/f-stella01_p.png",
-			"ステラ",
-			100, 80,
-			80, 30
-		)
-		statusDiv.appendChild(stella.element)
-		statuses.push(stella)
-
-		const lotti = new CharacterStatus(
-			144,
-			"characters/mock/f-Lotti_mv.png",
-			{ x: 0, y: 0 }, //normal face
-			{ x: 2, y: 0 }, //damaged face
-			// null,
-			{
-				duration: -1,
-				frame: [
-					{ x: 1, y: 1 },
-					{ x: 3, y: 0 },
-				]
-			},
-			"characters/mock/f-Lotti_p.png",
-			"ロッティ",
-			100, 80,
-			80, 30
-		)
-		statusDiv.appendChild(lotti.element)
-		statuses.push(lotti)
-
-		const may = new CharacterStatus(
-			144,
-			"characters/mock/f-may01.png",
-			{ x: 0, y: 0 }, //normal face
-			{ x: 3, y: 0 }, //damaged face
-			// null,
-			{
-				duration: -1,
-				frame: [
-					{ x: 2, y: 1 }
-				]
-			},
-			"characters/mock/f-may01_p.png",
-			"メイ",
-			100, 80,
-			80, 30
-		)
-		statusDiv.appendChild(may.element);
-		statuses.push(may)
+		for (const userCharacterData of user.party.characters) {
+			const status = new CharacterStatus(userCharacterData)
+			statusDiv.appendChild(status.element)
+			statuses.push(status)
+		}
 
 
 

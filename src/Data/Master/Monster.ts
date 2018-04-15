@@ -1,5 +1,5 @@
 /*
-# MasterData.ts
+# Master/Monster.ts
 
 Copyright(C) nonchang.net All rights reserved.
 
@@ -15,7 +15,7 @@ Copyright(C) nonchang.net All rights reserved.
 
 */
 
-import mockup from './Monster_Mockup';
+import mockup from './Monster_Mockup'
 import * as MasterData from '../MasterData'
 import Actor from '../Structures/Actor'
 import MaxLimitedNumber from '../../Common/MaxLimitedNumber'
