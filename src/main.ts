@@ -179,7 +179,7 @@ class Main {
 
 
 		// welcomeメッセージとバージョン情報
-		events.UI.AddMessage.broadcast("welcome to cage [ver 20180415 1828]")
+		events.UI.AddMessage.broadcast("welcome to cage [ver 20180418 0058]")
 
 		// 移動イベントでメッセージを出すテスト
 		// TODO: どこにおくべきだろう？ 少なくとも、main.tsからは外したい。
