@@ -15,7 +15,7 @@ Copyright(C) nonchang.net All rights reserved.
 
 */
 
-import mockup from './Character_Mockup'
+import mockup from './Characters_Mockup'
 import * as MasterData from '../MasterData'
 
 import Vector2 from '../../Common/Vector2'
@@ -24,27 +24,28 @@ import MaxLimitedNumber from '../../Common/MaxLimitedNumber'
 
 // マスターデータメインクラス
 // UNDONE: とりあえずmain.tsから切り出しただけでごちゃごちゃしてる。どう整理していこう？
-export class Character {
+export class Characters {
 
 	//TODO: このフラグはmain.ts側で渡せるようにしたい
 	readonly USE_MOCKUP = true
 
-	defs = new Array<Definition>()
-	dict: { number: Definition } //character idで一発取得する用
+	definitions = new Array<Character>()
+	dict: { number: Character } //character idで一発取得する用
 
-	async asyncSetup() {
+	async asyncSetup(): Promise<Characters> {
 		this.set(JSON.parse(mockup))
+		return this
 	}
 
 	//jsonでセットアップ
 	set(data) {
 		console.log(data)
 
-		this.dict = {} as { number: Definition }
+		this.dict = {} as { number: Character }
 		for (const datum of data) {
 			console.log(datum);
-			const def = new Definition()
-			this.defs.push(def)
+			const def = new Character()
+			this.definitions.push(def)
 			this.dict[datum.id] = def
 
 			def.id = datum.id
@@ -58,30 +59,36 @@ export class Character {
 					frames: datum.eyeAnimation.frames
 				}
 			}
+			def.messages = {
+				hitBlocked: datum.messages.hitBlocked
+			} //TODO: 型構造精査。messagesはhitBlockedを持つ。
 
 			//TODO: 経験値系のパース
 
 		}
-		console.log("character defs", this.defs)
+		console.log("character defs", this.definitions)
 	}
 
 }
 
-export class Definition {
+export class Character {
 	id: number
 	name: string
 	// undefinedName: string //将来的: 他プレイヤーゴースト表示時に使う想定。今は不要
-	face: FaceDefinition = new FaceDefinition()
+	face: Face = new Face()
+	messages: {
+		hitBlocked: Array<string>
+	}
 }
 
-class FaceDefinition {
+class Face {
 	tileUrl: string
 	normal: Vector2
 	damaged: Vector2
-	eyeAnimation: AnimationDefinition = new AnimationDefinition()
+	eyeAnimation: FaceAnimation = new FaceAnimation()
 }
 
-class AnimationDefinition {
+class FaceAnimation {
 	duration: number
 	frames: Array<Vector2>
 }

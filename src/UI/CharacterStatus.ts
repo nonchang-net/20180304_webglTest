@@ -1,7 +1,8 @@
 import Styler from "./Styler";
 import Vector2 from "../Common/Vector2";
-import { Definition as CharacterDefinition } from "../Data/Master/Character"
-import { Character as UserCharacterData } from '../Data/User/Party'
+// import { Character as CharacterMaster } from "../Data/Master/Characters"
+// import Party from '../Data/User/UserParty'
+import Character from '../Data/User/Character'
 
 /*
 # CharacterStatus.ts
@@ -30,12 +31,12 @@ export default class CharacterStatus {
 
 	element: HTMLDivElement
 	face: HTMLDivElement
-	characterDefinition: CharacterDefinition
+	character: Character
 
-	constructor(userCharacterData: UserCharacterData) {
+	constructor(character: Character) {
 
 		//TODO: マスター定義ではなくユーザーデータそのものを渡してreactive propertyを変更検知したい
-		this.characterDefinition = userCharacterData.definition
+		this.character = character
 
 		const elm = new Styler("div").flexHorizontal().getElement()
 		this.element = elm
@@ -55,7 +56,7 @@ export default class CharacterStatus {
 		elm.appendChild(face)
 		face.style.height = `${this.FACE_IMAGE_SIZE}px`
 		face.style.width = `${this.FACE_IMAGE_SIZE}px`
-		face.style.background = `url(${this.characterDefinition.face.tileUrl}) 0 0`
+		face.style.background = `url(${this.character.master.face.tileUrl}) 0 0`
 		face.style.flex = `0 1 ${this.FACE_IMAGE_SIZE}px`
 		face.style.backgroundSize = `${this.FACE_IMAGE_SIZE * 4}px ${this.FACE_IMAGE_SIZE * 2}px`
 
@@ -68,7 +69,7 @@ export default class CharacterStatus {
 		right.style.flex = "1 1 auto"
 
 		// 名前
-		const nameParagraph = new Styler("p").text(this.characterDefinition.name).appendTo(right).getElement()
+		const nameParagraph = new Styler("p").text(this.character.master.name).appendTo(right).getElement()
 		// nameParagraph.style.borderBottom = "1px solid rgba(0,123,123,0.5)"
 		nameParagraph.style.background = "linear-gradient(90deg, rgba(45,69,60,0.3) 0%, rgba(43,59,41,0.6) 8%, rgba(111,111,111,0.4) 20%, rgba(241,244,255,0) 100%)"
 		nameParagraph.style.color = "white"
@@ -116,10 +117,10 @@ export default class CharacterStatus {
 	setFaceKind(kind: FaceKind) {
 		switch (kind) {
 			case FaceKind.Normal:
-				this.setFaceIndex(this.characterDefinition.face.normal)
+				this.setFaceIndex(this.character.master.face.normal)
 				break
 			case FaceKind.Damaged:
-				this.setFaceIndex(this.characterDefinition.face.damaged)
+				this.setFaceIndex(this.character.master.face.damaged)
 				break
 		}
 	}
@@ -136,8 +137,8 @@ export default class CharacterStatus {
 		// console.log(`eyeAnimation ${this.eyeAnimationFrame}`);
 
 		// 目パチ定義がなければnull return
-		if (!this.characterDefinition.face.eyeAnimation) return;
-		const eyeDef = this.characterDefinition.face.eyeAnimation
+		if (!this.character.master.face.eyeAnimation) return;
+		const eyeDef = this.character.master.face.eyeAnimation
 
 		// console.log(`eye anim ${this.eyeAnimationFrame}`);
 
@@ -152,7 +153,7 @@ export default class CharacterStatus {
 
 		// フレームが残ってない
 		this.eyeAnimationFrame = 0
-		this.setFaceIndex(this.characterDefinition.face.normal)
+		this.setFaceIndex(this.character.master.face.normal)
 		setTimeout(() => { this.startEyeAnimation() },
 			Math.random()
 			* this.CHARACTER_EYE_ANIMATION_NEXT_RANDOM

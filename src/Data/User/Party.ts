@@ -14,50 +14,30 @@
 // import { ReactiveProperty } from '../Event/Event'
 
 import MasterData from '../MasterData'
-import { Character as CharacterMaster, Definition as CharacterDefinition } from '../Master/Character'
-import MaxLimitedNumber from '../../Common/MaxLimitedNumber'
+import { Characters } from '../Master/Characters'
+import UserCharacter from './Character'
 import { ReactiveProperty } from '../../Event/Event'
 
 export default class Party {
 
-	characters: Array<Character>
-	masterData: CharacterMaster
+	characters: Array<UserCharacter>
+	charactersMaster: Characters
 
-	constructor(masterData: CharacterMaster) {
-		this.masterData = masterData
+	constructor(masterData: Characters) {
+		this.charactersMaster = masterData
 
 		// 初期メンバー登録
-		// TODO: ロード・セーブ
+		// TODO: ロード・セーブ・メンバー編集etc
+		this.characters = new Array<UserCharacter>()
+		this.characters.push(new UserCharacter(masterData.dict[1]))
+		this.characters.push(new UserCharacter(masterData.dict[2]))
+		this.characters.push(new UserCharacter(masterData.dict[3]))
+	}
 
-		this.characters = new Array<Character>()
-		this.characters.push(new Character(masterData, 1))
-		this.characters.push(new Character(masterData, 2))
-		this.characters.push(new Character(masterData, 3))
+	getRandomOne(): UserCharacter {
+		return this.characters[Math.floor(Math.random() * this.characters.length)];
 	}
 
 }
 
 
-// ユーザデータとしてのキャラクター情報
-export class Character {
-
-	characterMasterData: CharacterMaster
-
-	get definition(): CharacterDefinition {
-		return this.characterMasterData.dict[this.masterDataId];
-	}
-
-	masterDataId: number
-
-	level = new ReactiveProperty(0)
-	hp: MaxLimitedNumber
-	mp: MaxLimitedNumber
-
-	constructor(characterMasterData: CharacterMaster, masterDataId: number) {
-		this.characterMasterData = characterMasterData
-		this.masterDataId = masterDataId
-		this.level.value = 1
-	}
-
-
-}

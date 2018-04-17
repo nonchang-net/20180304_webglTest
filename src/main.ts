@@ -78,7 +78,8 @@ class Main {
 		// マスターデータ初期化
 		// TODO: マスターデータ更新通信はService Worker？ この辺知識が足りてないので要調査。
 		const master = new MasterData()
-		master.asyncSetup(0)
+		let lastUpdate = 0 //TODO: 現状、比較対象が-1なので必ず更新になってる
+		await master.asyncSetup(lastUpdate)
 
 		// console.log("master dump", master.monsters.defs)
 
@@ -185,14 +186,22 @@ class Main {
 		events.Common.PlayerStepToForwardSuccess.subscribe(this.constructor.name, () => {
 			events.UI.AddMessage.broadcast("あなたたちは前に進んだ。")
 			if (Math.random() * 3 > 1) {
-				//試しにエンカウントデバッグ
-				const monsterIndex = Math.floor(Math.random() * master.monsters.defs.length)
+
+				// 試しにエンカウントデバッグ
+				// TODO: モンスターマスターの直接参照は是か非か。ちょっと考えたい。。
+				const monsterIndex = Math.floor(Math.random() * master.monsters.definitions.length)
 				// console.log(`test : ${master.monsters.defs[monsterIndex].name}`);
 			}
 		})
 		events.Common.PlayerStepToForwardAndHitBlock.subscribe(this.constructor.name, () => {
 			events.UI.Disable.broadcast()
-			events.UI.AddMessage.broadcast("いてっ！")
+
+			// 壁に当たった時のメッセージ
+			// events.UI.AddMessage.broadcast("いてっ！")
+			// "messages":{
+			// 	"hitBlocked":[
+			events.UI.AddMessage.broadcast(user.party.getRandomOne().getWallMessage())
+
 			for (let st of statuses) st.setFaceKind(FaceKind.Damaged)
 			// console.log("testtest")
 

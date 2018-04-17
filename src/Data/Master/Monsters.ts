@@ -15,26 +15,25 @@ Copyright(C) nonchang.net All rights reserved.
 
 */
 
-import mockup from './Monster_Mockup'
+import mockup from './Monsters_Mockup'
 import * as MasterData from '../MasterData'
 import Actor from '../Structures/Actor'
 import MaxLimitedNumber from '../../Common/MaxLimitedNumber'
 
 // マスターデータメインクラス
 // UNDONE: とりあえずmain.tsから切り出しただけでごちゃごちゃしてる。どう整理していこう？
-export default class Monster {
+export default class Monsters {
 
 	readonly USE_MOCKUP = true
 
-	// private context: GameContext.GameContext 
-	defs: Array<Actor>
+	definitions: Array<Actor>
 
 	//TODO:
 	// google spread sheet直接読み込みは、API利用制限があるので内部テストが限界。
 	// jsonはS3にデプロイするフローを作る必要がある。
 	readonly EnemiesURL = "https://script.googleusercontent.com/macros/echo?user_content_key=yKK-ZUzj02ZwKXWFT39B8QquttV0bC9w57OUmnUBof-pCFXaMcQ-BJdATX6I2Dymszq5_qJOMQhWpcZG1F34RX92QEzmgSyfm5_BxDlH2jW0nuo2oDemN9CCS2h10ox_1xSncGQajx_ryfhECjZEnAJjrIvQ97z0RW-0xPK1w48qcTuPdn844uwwbw2T51YtYioAfvWxA81WU9kqGDrfop0mgLDwm9cO&lib=Mm0OfG4rpMmjOijnmsnJqouS5Zx1wbZ9l"
 
-	async asyncSetup() {
+	async asyncSetup(): Promise<Monsters> {
 
 		if (this.USE_MOCKUP) {
 			console.log(`MasterData: USE MOCKUP!`);
@@ -54,12 +53,13 @@ export default class Monster {
 				this.set(JSON.parse(data))
 			})
 		}
+		return this
 	}
 
 	//jsonでセットアップ
 	set(data) {
 		// console.log(data)
-		this.defs = new Array<Actor>()
+		this.definitions = new Array<Actor>()
 		for (const master of data) {
 			// console.log(master);
 			const actor: Actor = new Actor
@@ -69,7 +69,7 @@ export default class Monster {
 			actor.attackVariable = master.attackVariable
 			actor.hp = new MaxLimitedNumber(master.hp)
 			actor.mp = new MaxLimitedNumber(master.mp)
-			this.defs.push(actor)
+			this.definitions.push(actor)
 		}
 		// console.log("enemies defs", this.defs)
 	}
