@@ -41,6 +41,8 @@ import GameStateKind from './Data/GameStateKind'
 import Tween from './Common/Tween'
 import Popup from './UI/Popup'
 import { default as CharacterStatus, FaceKind } from './UI/CharacterStatus';
+import Bar from './UI/Bar';
+import Encount from './UI/Encount';
 
 // Windowスコープを拡張: コンソールからMainのpublic要素にアクセスできるように
 // 例: console.log("test",window.Main.dirty) //note: 実行時はjavascriptなので、privateプロパティも参照できる点に注意
@@ -71,10 +73,12 @@ class Main {
 
 		body.style.overflow = "hidden"
 
-		// イベント初期化
+		// =====================
+		// ゲームイベント初期化
 		// - 初期化時にイベント登録を行うモジュールが多いため、最初に実行する必要がある
 		const events = new GameEvents()
 
+		// =====================
 		// マスターデータ初期化
 		// TODO: マスターデータ更新通信はService Worker？ この辺知識が足りてないので要調査。
 		const master = new MasterData()
@@ -86,6 +90,7 @@ class Main {
 		const user = new UserData(master)
 
 
+		// =====================
 		// 初回アクセスポップアップ実装テスト
 		// - 初期化タイミングは実際にはどこになるだろう？
 		// - セーブデータを自動読み込みするのであれば、UserData初期化のあとになるだろうか。
@@ -105,6 +110,7 @@ class Main {
 
 
 
+		// =====================
 		// TEST: Reactive Property検討。とりあえず少ない記述で目標は達成？
 
 		// user.gameState.subscribe(this.constructor.name, (state) => {
@@ -113,44 +119,45 @@ class Main {
 		// user.gameState.value = GameStateKind.InGame
 
 
+		// =====================
 		// 迷路情報初期化
 		// var maze = new Maze.Factory().Create(9, 9)
 		var maze = new Maze.Factory().Create(23, 23)
 		// console.log(maze);
 
 
+		// =====================
 		// キーボードイベント監視クラス初期化
 		new Keyboard(events)
 
 
+		// =====================
 		// UI初期化
 		const ui = new UI(events, body)
 
 
+		// =====================
 		// メッセージシステム初期化
 		// - UI初期化後
 		const messages = new Messages(events, 5, 100)
 		ui.main.appendChild(messages.element)
 
 
+		// =====================
 		// THREE.js用の3d canvas作成
 		const canvas = new Styler("canvas").appendTo(ui.main).getElement()
 		ui.main.appendChild(canvas)
 
 
+		// =====================
 		// 3d canvas用のマウス・タッチイベント登録
 		// - 3D Canvas初期化後
 		const uiEvent = new MyUIEvents(canvas)
 
 
-		// マップUI初期化
-		// - events, maze初期化後
-		const map = new MapView(events, maze)
-		ui.main.appendChild(map.element)
-		ui.main.appendChild(map.playerMarkCanvas)
-		map.update()
 
 
+		// =====================
 		// サウンド初期化
 		// TODO: マスター読ませてロード管理させたい
 		const soundManager = new SoundManager()
@@ -172,17 +179,38 @@ class Main {
 			// console.log(`${soundManager.bgm1IsPlaying} `)
 		})
 
+		// =====================
+		// マップUI初期化
+		// - events, maze初期化後
+		const map = new MapView(events, maze)
+		ui.main.appendChild(map.element)
+		ui.main.appendChild(map.playerMarkCanvas)
+		map.update()
 
+		// =====================
 		// ゲームシーン初期化
 		const game = new ThreeDScene(events, canvas, map, uiEvent, ui.main)
 		await game.InitGameScene(maze)
 
-
+		// =====================
 		// welcomeメッセージとバージョン情報
 		events.UI.AddMessage.broadcast("welcome to cage [ver 20180418 0058]")
 
+
+		// =====================
+		// 敵エンカウントグラフィックス表示テスト
+
+		const encountUI = new Encount(events)
+		encountUI.encount()
+		ui.main.appendChild(encountUI.element)
+
+
+
+
+
+		// =====================
 		// 移動イベントでメッセージを出すテスト
-		// TODO: どこにおくべきだろう？ 少なくとも、main.tsからは外したい。
+		// TODO: これらのロジックはどこにおくべきだろう？ 少なくとも、main.tsからは外したい。
 		events.Common.PlayerStepToForwardSuccess.subscribe(this.constructor.name, () => {
 			events.UI.AddMessage.broadcast("あなたたちは前に進んだ。")
 			if (Math.random() * 3 > 1) {
@@ -193,13 +221,11 @@ class Main {
 				// console.log(`test : ${master.monsters.defs[monsterIndex].name}`);
 			}
 		})
+
 		events.Common.PlayerStepToForwardAndHitBlock.subscribe(this.constructor.name, () => {
 			events.UI.Disable.broadcast()
 
 			// 壁に当たった時のメッセージ
-			// events.UI.AddMessage.broadcast("いてっ！")
-			// "messages":{
-			// 	"hitBlocked":[
 			events.UI.AddMessage.broadcast(user.party.getRandomOne().getWallMessage())
 
 			for (let st of statuses) st.setFaceKind(FaceKind.Damaged)
@@ -227,7 +253,8 @@ class Main {
 			events.UI.AddMessage.broadcast("あなたたちは右に回った。")
 		})
 
-		// ステータス表示テスト
+		// =====================
+		// 味方ステータス表示テスト
 
 		const statusDiv = new Styler("div").abs().t(5).l(5).appendTo(ui.main).getElement()
 
