@@ -37,6 +37,7 @@ class CommonEvents {
 	PlayerRotate = new Event<number>()
 
 	PlayerStepToForwardSuccess = new Event()
+	PlayerStepToForwardSucceed = new Event()
 	PlayerStepToForwardAndHitBlock = new Event()
 }
 
@@ -44,6 +45,9 @@ class UIEvents {
 	//ゲーム中、様々な「処理中」にはUI操作停止を通知する必要がある
 	Disable = new Event()
 	Enable = new Event()
+
+	TouchAndKeyboardSwitch = new Event<boolean>()
+	BottomButtonSwitch = new Event<boolean>()
 
 	AddMessage = new Event<string>()
 }

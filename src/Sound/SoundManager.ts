@@ -23,13 +23,26 @@
 
 
 */
+
+enum BGMKind {
+	Opening,
+	Quest,
+	Battle,
+}
+
 export default class SoundManager {
 
 	context: AudioContext
 
-	bgm1buffer: AudioBuffer
-	bgm1source: AudioBufferSourceNode
-	bgm1IsPlaying = false
+	currentBGMKind: BGMKind = BGMKind.Quest
+
+	questBGM: AudioBuffer
+	battleBGM: AudioBuffer
+	currentBGMSource: AudioBufferSourceNode
+	playing = false
+
+	private readonly bgm1url = './sounds/bgm/dangeon01_sketch01.mp3'
+	private readonly battleUrl = './sounds/bgm/battle01_sketch01.mp3'
 
 	constructor() {
 		try {
@@ -43,46 +56,82 @@ export default class SoundManager {
 	}
 
 	async asyncSetup() {
-		const bgm1url = './sounds/bgm/dangeon01_sketch01.mp3'
-		const responce = await fetch(bgm1url)
+		const responce = await fetch(this.bgm1url)
 		const buffer = await responce.arrayBuffer()
 
-		//note: safariではawaitでdecodeAudioDataを書けなかった。（Not enough arguments）
-		// 以下はchromeでは動く。
-		// this.bgm1buffer = await this.context.decodeAudioData(buffer)
-		// 仕方ないのでPromiseで包む
+		const audioBuffer = await this.loadSoundBuffer(buffer)
+		this.questBGM = audioBuffer as AudioBuffer
+
+		const responce2 = await fetch(this.battleUrl)
+		const buffer2 = await responce2.arrayBuffer()
+
+		const audioBuffer2 = await this.loadSoundBuffer(buffer2)
+		this.battleBGM = audioBuffer2 as AudioBuffer
+	}
+
+	//note: safariではawaitでdecodeAudioDataを書けなかった。（Not enough arguments）
+	// 以下はchromeでは動く。
+	// this.questBGM = await this.context.decodeAudioData(buffer)
+	// 仕方ないのでPromiseで包む
+	private async loadSoundBuffer(buffer): Promise<{}> {
 		return new Promise((resolve, reject) => {
 			this.context.decodeAudioData(buffer, (buffer2) => {
-				this.bgm1buffer = buffer2
-				resolve()
+				// this.questBGM = buffer2
+				resolve(buffer2)
 			}, (error) => {
-				console.log('error', error)
-				reject()
+				console.log('sound buffer load error', error)
+				reject(null)
 			})
 		})
 	}
 
 	startBgm1() {
 		// console.log("startBgm1")
-		this.bgm1source = this.context.createBufferSource()
-		this.bgm1source.buffer = this.bgm1buffer
-		this.bgm1source.loop = true
-		this.bgm1source.connect(this.context.destination)
-		this.bgm1source.start(0)
-		this.bgm1IsPlaying = true
+		this.stopBgm()
+		this.currentBGMKind = BGMKind.Quest
+		this.currentBGMSource = this.context.createBufferSource()
+		this.currentBGMSource.buffer = this.questBGM
+		this.currentBGMSource.loop = true
+		this.currentBGMSource.connect(this.context.destination)
+		this.currentBGMSource.start(0)
+		this.playing = true
 	}
 
-	stopBgm1() {
+	startButtleBgm() {
+		this.stopBgm()
+		this.currentBGMKind = BGMKind.Battle
+		this.currentBGMSource = this.context.createBufferSource()
+		this.currentBGMSource.buffer = this.battleBGM
+		this.currentBGMSource.loop = true
+		this.currentBGMSource.connect(this.context.destination)
+		this.currentBGMSource.start(0)
+		this.playing = true
+	}
+
+	startBGM() {
+		switch (this.currentBGMKind) {
+			case BGMKind.Quest:
+				this.startBgm1()
+				break
+			case BGMKind.Battle:
+				this.startButtleBgm()
+				break
+		}
+	}
+
+	stopBgm() {
 		// console.log("stopBgm1")
-		this.bgm1source.stop()
-		this.bgm1IsPlaying = false
+		if (this.currentBGMSource) {
+			this.currentBGMSource.stop()
+		}
+		this.playing = false
 	}
 
 	toggleBgm1() {
-		if (this.bgm1IsPlaying) {
-			this.stopBgm1()
+		if (this.playing) {
+			this.stopBgm()
 		} else {
-			this.startBgm1()
+			this.startBGM()
 		}
 	}
 }

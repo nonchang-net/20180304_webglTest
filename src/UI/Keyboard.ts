@@ -43,6 +43,9 @@ export default class Keyboard {
 		events.UI.Disable.subscribe(this.constructor.name, () => {
 			this.interactable = false
 		})
+		events.UI.TouchAndKeyboardSwitch.subscribe(this.constructor.name, x => {
+			this.interactable = x
+		})
 
 		this.Tick()
 	}

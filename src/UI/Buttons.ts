@@ -217,7 +217,8 @@ class Button {
 		this.front = elm
 		// this.back = elm2
 
-		// TODO: これらもinjectionにしたい
+		// TODO: これらもinjectionにしたい……やりすぎか？
+		// - せめてStylerにまとめておきたい。
 
 		const hover = () => {
 			elm.style.color = "#fff"

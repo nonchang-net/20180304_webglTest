@@ -94,6 +94,9 @@ export default class ThreeDScene {
 		events.UI.Disable.subscribe(this.constructor.name, () => {
 			this.interactable = false
 		})
+		events.UI.TouchAndKeyboardSwitch.subscribe(this.constructor.name, x => {
+			this.interactable = x
+		})
 
 
 		const broadcastPlayerMove = () => {
@@ -221,6 +224,8 @@ export default class ThreeDScene {
 					// console.log(`camera pos : `, this.camera.position)
 					this.dirty = true
 					events.UI.Enable.broadcast()
+					//歩行完了イベント通知: エンカウント判定などが続く
+					events.Common.PlayerStepToForwardSucceed.broadcast()
 				}
 			})
 		})

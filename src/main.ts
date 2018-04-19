@@ -175,7 +175,7 @@ class Main {
 		}
 		events.Sound.ToggleBgm.subscribe(this.constructor.name, () => {
 			soundManager.toggleBgm1()
-			localStorage.setItem(BGM_ENABLED_FLAG_KEY, `${soundManager.bgm1IsPlaying}`)
+			localStorage.setItem(BGM_ENABLED_FLAG_KEY, `${soundManager.playing}`)
 			// console.log(`${soundManager.bgm1IsPlaying} `)
 		})
 
@@ -200,11 +200,9 @@ class Main {
 		// =====================
 		// 敵エンカウントグラフィックス表示テスト
 
-		const encountUI = new Encount(events)
-		encountUI.encount()
+		const encountUI = new Encount(events, ui)
 		ui.main.appendChild(encountUI.element)
-
-
+		// await encountUI.encount(0)
 
 
 
@@ -213,12 +211,22 @@ class Main {
 		// TODO: これらのロジックはどこにおくべきだろう？ 少なくとも、main.tsからは外したい。
 		events.Common.PlayerStepToForwardSuccess.subscribe(this.constructor.name, () => {
 			events.UI.AddMessage.broadcast("あなたたちは前に進んだ。")
-			if (Math.random() * 3 > 1) {
+		})
 
-				// 試しにエンカウントデバッグ
+		//歩行完了イベント
+		events.Common.PlayerStepToForwardSucceed.subscribe(this.constructor.name, () => {
+			if (Math.random() > 0.8) {
+				// エンカウント
+				// TODO: エンカウントは「歩き始める前」の方がよくないか？ 壁際エンカウントを防げる。
 				// TODO: モンスターマスターの直接参照は是か非か。ちょっと考えたい。。
 				const monsterIndex = Math.floor(Math.random() * master.monsters.definitions.length)
-				// console.log(`test : ${master.monsters.defs[monsterIndex].name}`);
+				console.log(`test : ${master.monsters.definitions[monsterIndex].name}`);
+				(async () => {
+					soundManager.startButtleBgm()
+					await encountUI.encount(monsterIndex)
+					await encountUI.clear()
+					soundManager.startBgm1()
+				})()
 			}
 		})
 
