@@ -160,6 +160,9 @@ export default class Encount {
 		this.events.UI.AddMessage.broadcast("モンスターが現れた！")
 		this.events.UI.AddMessage.broadcast("[ステラのターンです。コマンドを入力してください]")
 
+		//下部ボタン隠す
+		await this.ui.buttons.hide()
+
 		// 下部ボタンだけ入力制限解除
 		this.events.UI.BottomButtonSwitch.broadcast(true)
 
@@ -221,6 +224,7 @@ export default class Encount {
 					},
 				]
 			});
+			this.ui.buttons.show()
 		})
 	}
 

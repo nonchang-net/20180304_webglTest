@@ -23,6 +23,7 @@
 
 
 */
+import GameEvents from '../Event/GameEvents'
 
 enum BGMKind {
 	Opening,
@@ -31,6 +32,8 @@ enum BGMKind {
 }
 
 export default class SoundManager {
+
+	readonly BGM_ENABLED_FLAG_KEY = 'BGM Enabled'
 
 	context: AudioContext
 
@@ -44,7 +47,7 @@ export default class SoundManager {
 	private readonly bgm1url = './sounds/bgm/dangeon01_sketch01.mp3'
 	private readonly battleUrl = './sounds/bgm/battle01_sketch01.mp3'
 
-	constructor() {
+	constructor(events: GameEvents) {
 		try {
 			this.context = new AudioContext()
 		} catch (e) {
@@ -53,6 +56,20 @@ export default class SoundManager {
 			const fallbackScope: any = window
 			this.context = new fallbackScope.webkitAudioContext();
 		}
+
+		const bgmEnabledLocalStorageValue = localStorage.getItem(this.BGM_ENABLED_FLAG_KEY)
+		// console.log(bgmEnabledLocalStorageValue)
+		const bgmEnabled = !bgmEnabledLocalStorageValue ? false : bgmEnabledLocalStorageValue == "true"
+
+		if (bgmEnabled) {
+			this.startBgm1()
+		}
+		events.Sound.ToggleBgm.subscribe(this.constructor.name, () => {
+			this.toggleBgm1()
+			localStorage.setItem(this.BGM_ENABLED_FLAG_KEY, `${this.playing}`)
+			// console.log(`${this.bgm1IsPlaying} `)
+		})
+
 	}
 
 	async asyncSetup() {
@@ -87,6 +104,10 @@ export default class SoundManager {
 
 	startBgm1() {
 		// console.log("startBgm1")
+		console.log("sound_enabled", localStorage.getItem(this.BGM_ENABLED_FLAG_KEY))
+		if (localStorage.getItem(this.BGM_ENABLED_FLAG_KEY) == "false") {
+			return
+		}
 		this.stopBgm()
 		this.currentBGMKind = BGMKind.Quest
 		this.currentBGMSource = this.context.createBufferSource()
@@ -98,6 +119,10 @@ export default class SoundManager {
 	}
 
 	startButtleBgm() {
+		console.log("sound_enabled", localStorage.getItem(this.BGM_ENABLED_FLAG_KEY))
+		if (localStorage.getItem(this.BGM_ENABLED_FLAG_KEY) == "false") {
+			return
+		}
 		this.stopBgm()
 		this.currentBGMKind = BGMKind.Battle
 		this.currentBGMSource = this.context.createBufferSource()
@@ -121,10 +146,19 @@ export default class SoundManager {
 
 	stopBgm() {
 		// console.log("stopBgm1")
-		if (this.currentBGMSource) {
-			this.currentBGMSource.stop()
+		if (this.currentBGMSource != null) {
+			try {
+				this.currentBGMSource.stop()
+			} catch (e) {
+				//TODO: safariでは、「InvalidStateError: The object is in an invalid state.」となる。よく調べてないけど、ログ出して例外を握りつぶしておく
+				console.error(e)
+			}
 		}
 		this.playing = false
+	}
+
+	updateSetting(settings: { enabled: boolean }) {
+		localStorage.setItem(this.BGM_ENABLED_FLAG_KEY, settings.enabled.toString());
 	}
 
 	toggleBgm1() {

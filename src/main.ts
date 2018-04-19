@@ -155,29 +155,12 @@ class Main {
 		const uiEvent = new MyUIEvents(canvas)
 
 
-
-
 		// =====================
 		// サウンド初期化
 		// TODO: マスター読ませてロード管理させたい
-		const soundManager = new SoundManager()
-		// console.log('soundManager setup start')
+		const soundManager = new SoundManager(events)
 		await soundManager.asyncSetup()
-		// console.log('soundManager setup finished')
 
-		const BGM_ENABLED_FLAG_KEY = 'BGM Enabled'
-		const bgmEnabledLocalStorageValue = localStorage.getItem(BGM_ENABLED_FLAG_KEY)
-		// console.log(bgmEnabledLocalStorageValue)
-		const bgmEnabled = !bgmEnabledLocalStorageValue ? false : bgmEnabledLocalStorageValue == "true"
-
-		if (bgmEnabled) {
-			soundManager.startBgm1()
-		}
-		events.Sound.ToggleBgm.subscribe(this.constructor.name, () => {
-			soundManager.toggleBgm1()
-			localStorage.setItem(BGM_ENABLED_FLAG_KEY, `${soundManager.playing}`)
-			// console.log(`${soundManager.bgm1IsPlaying} `)
-		})
 
 		// =====================
 		// マップUI初期化
