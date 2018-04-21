@@ -33,6 +33,8 @@ class CommonEvents {
 	// CancelFullScreen = new Event()
 	ToggleFullScreen = new Event()
 
+	BackToTitle = new Event()
+
 	PlayerMove = new Event<{ x: number, y: number }>()
 	PlayerRotate = new Event<number>()
 
@@ -52,6 +54,10 @@ class UIEvents {
 	BottomButtonSwitch = new Event<boolean>()
 
 	AddMessage = new Event<string>()
+	ClearMessage = new Event()
+
+	//ゲーム中、いつでも呼び出せるポップアップメニュー
+	OpenPopupMenu = new Event()
 }
 
 class ButtonEvents {

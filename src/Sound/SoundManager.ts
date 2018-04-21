@@ -25,7 +25,7 @@
 */
 import GameEvents from '../Event/GameEvents'
 
-enum BGMKind {
+export enum BGMKind {
 	Opening,
 	Quest,
 	Battle,
@@ -37,13 +37,15 @@ export default class SoundManager {
 
 	context: AudioContext
 
-	currentBGMKind: BGMKind = BGMKind.Quest
+	currentBGMKind: BGMKind = BGMKind.Opening
 
+	titleBGM: AudioBuffer
 	questBGM: AudioBuffer
 	battleBGM: AudioBuffer
 	currentBGMSource: AudioBufferSourceNode
 	playing = false
 
+	private readonly titleBgmUrl = './sounds/bgm/likeabirdinacage_short.mp3'
 	private readonly bgm1url = './sounds/bgm/dangeon01_sketch01.mp3'
 	private readonly battleUrl = './sounds/bgm/battle01_sketch01.mp3'
 
@@ -61,29 +63,57 @@ export default class SoundManager {
 		// console.log(bgmEnabledLocalStorageValue)
 		const bgmEnabled = !bgmEnabledLocalStorageValue ? false : bgmEnabledLocalStorageValue == "true"
 
-		if (bgmEnabled) {
-			this.startBgm1()
-		}
+		console.log(`bgm enabled: ${bgmEnabled}`);
+
+		// if (bgmEnabled) {
+		// 	this.startBGM(BGMKind.Opening)
+		// }
 		events.Sound.ToggleBgm.subscribe(this.constructor.name, () => {
 			this.toggleBgm1()
 			localStorage.setItem(this.BGM_ENABLED_FLAG_KEY, `${this.playing}`)
 			// console.log(`${this.bgm1IsPlaying} `)
 		})
 
+		events.Sound.TurnBgmOn.subscribe(this.constructor.name, () => {
+			this.updateSetting({ enabled: true })
+			this.startBGM()
+			localStorage.setItem(this.BGM_ENABLED_FLAG_KEY, `${this.playing}`)
+			console.log(`${this.playing} `)
+		})
+
+		events.Sound.TurnBgmOff.subscribe(this.constructor.name, () => {
+			this.updateSetting({ enabled: false })
+			this.stopBgm()
+			localStorage.setItem(this.BGM_ENABLED_FLAG_KEY, `${this.playing}`)
+			console.log(`${this.playing} `)
+		})
+
 	}
 
 	async asyncSetup() {
-		const responce = await fetch(this.bgm1url)
+		// const responce = await fetch(this.bgm1url)
+		// const buffer = await responce.arrayBuffer()
+
+		// const audioBuffer = await this.loadSoundBuffer(buffer)
+		// this.questBGM = audioBuffer as AudioBuffer
+
+		// const responce2 = await fetch(this.battleUrl)
+		// const buffer2 = await responce2.arrayBuffer()
+
+		// const audioBuffer2 = await this.loadSoundBuffer(buffer2)
+		// this.battleBGM = audioBuffer2 as AudioBuffer
+
+		await this.loadAudioBufferByUrl(this.titleBgmUrl, this.titleBGM)
+		await this.loadAudioBufferByUrl(this.bgm1url, this.questBGM)
+		await this.loadAudioBufferByUrl(this.battleUrl, this.battleBGM)
+	}
+
+	async loadAudioBufferByUrl(url: string, targetBuffer: AudioBuffer) {
+		const responce = await fetch(url)
 		const buffer = await responce.arrayBuffer()
 
 		const audioBuffer = await this.loadSoundBuffer(buffer)
-		this.questBGM = audioBuffer as AudioBuffer
-
-		const responce2 = await fetch(this.battleUrl)
-		const buffer2 = await responce2.arrayBuffer()
-
-		const audioBuffer2 = await this.loadSoundBuffer(buffer2)
-		this.battleBGM = audioBuffer2 as AudioBuffer
+		targetBuffer = audioBuffer as AudioBuffer
 	}
 
 	//note: safariではawaitでdecodeAudioDataを書けなかった。（Not enough arguments）
@@ -102,44 +132,38 @@ export default class SoundManager {
 		})
 	}
 
-	startBgm1() {
-		// console.log("startBgm1")
-		console.log("sound_enabled", localStorage.getItem(this.BGM_ENABLED_FLAG_KEY))
-		if (localStorage.getItem(this.BGM_ENABLED_FLAG_KEY) == "false") {
-			return
-		}
-		this.stopBgm()
-		this.currentBGMKind = BGMKind.Quest
+	private startBGMSource(buffer: AudioBuffer) {
+		console.log(`再生開始 ${this.currentBGMKind}`);
 		this.currentBGMSource = this.context.createBufferSource()
-		this.currentBGMSource.buffer = this.questBGM
+		this.currentBGMSource.buffer = buffer
 		this.currentBGMSource.loop = true
 		this.currentBGMSource.connect(this.context.destination)
 		this.currentBGMSource.start(0)
 		this.playing = true
 	}
 
-	startButtleBgm() {
+	startBGM(bgmKind?: BGMKind) {
+		if (!bgmKind) {
+			//引数なし: 現在再生中のkindを再生
+			bgmKind = this.currentBGMKind
+		} else {
+			//引数があれば、現在再生中kindとして保存
+			this.currentBGMKind = bgmKind
+		}
 		console.log("sound_enabled", localStorage.getItem(this.BGM_ENABLED_FLAG_KEY))
 		if (localStorage.getItem(this.BGM_ENABLED_FLAG_KEY) == "false") {
+			console.log("notice: サウンド設定がオフです。");
 			return
 		}
-		this.stopBgm()
-		this.currentBGMKind = BGMKind.Battle
-		this.currentBGMSource = this.context.createBufferSource()
-		this.currentBGMSource.buffer = this.battleBGM
-		this.currentBGMSource.loop = true
-		this.currentBGMSource.connect(this.context.destination)
-		this.currentBGMSource.start(0)
-		this.playing = true
-	}
-
-	startBGM() {
-		switch (this.currentBGMKind) {
+		switch (bgmKind) {
+			case BGMKind.Opening:
+				this.startBGMSource(this.titleBGM)
+				break
 			case BGMKind.Quest:
-				this.startBgm1()
+				this.startBGMSource(this.questBGM)
 				break
 			case BGMKind.Battle:
-				this.startButtleBgm()
+				this.startBGMSource(this.battleBGM)
 				break
 		}
 	}
@@ -163,8 +187,11 @@ export default class SoundManager {
 
 	toggleBgm1() {
 		if (this.playing) {
+			this.updateSetting({ enabled: false })
 			this.stopBgm()
 		} else {
+
+			this.updateSetting({ enabled: true })
 			this.startBGM()
 		}
 	}

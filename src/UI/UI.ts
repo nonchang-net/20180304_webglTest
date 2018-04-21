@@ -112,13 +112,26 @@ export default class UI {
 			buttons.interactable = x
 		})
 
-		events.Keyboard.Z.subscribe(this.constructor.name, () => { this.openCommands() })
-		events.Keyboard.X.subscribe(this.constructor.name, () => { this.openMenu() })
+		// TODO: テスト用。asd/qweキーに表示されてるボタンに対応させたい。
+		// events.Keyboard.Z.subscribe(this.constructor.name, () => { this.openCommands() })
+		// events.Keyboard.X.subscribe(this.constructor.name, () => { this.openPopupMenu() })
+
+		// タイトルに戻るイベント
+		events.Common.BackToTitle.subscribe(this.constructor.name, () => {
+			this.buttons.element.style.display = "none"
+			this.initTitleButton()
+		})
+
+
+		events.UI.OpenPopupMenu.subscribe(this.constructor.name, () => {
+			// async _ => await this.openPopupMenu()
+			this.openPopupMenu()
+		})
 
 		this.initTitleButton()
 	}
 
-	private initTitleButton() {
+	public initTitleButton() {
 
 		// タイトル画面用表示初期化
 		// Tap to start表示を開始オプション作成
@@ -162,13 +175,19 @@ export default class UI {
 
 		tapToStart.onclick = e => {
 			console.log(e);
-			this.tapToStart.style.display = "none"
+			// とりあえず一瞬で消す
+			this.buttons.cover.removeChild(tapToStart);
 			this.events.UI.TitleTap.broadcast()
 		}
 
 		soundCheck.onclick = e => {
 			e.stopPropagation()
 			console.log(soundCheck.checked);
+			if (soundCheck.checked) {
+				this.events.Sound.TurnBgmOn.broadcast()
+			} else {
+				this.events.Sound.TurnBgmOff.broadcast()
+			}
 		}
 
 		resourceDeleteButton.onclick = e => {
@@ -202,7 +221,7 @@ export default class UI {
 		this.events.UI.Enable.broadcast()
 	}
 
-	private async openMenu() {
+	private async openPopupMenu() {
 		const contents = new Styler("div").flexVertical().middle().center().getElement()
 		new Styler("h2").text("ポップアップメニュー").appendTo(contents)
 		new Styler("p").text(" ").appendTo(contents)
@@ -241,15 +260,15 @@ export default class UI {
 							}
 						},
 						{
-							text: "1",
+							text: "アイテム",
 							onclick: () => {
-								console.log("up")
+								this.events.UI.AddMessage.broadcast("[未実装です。]")
 							}
 						},
 						{
-							text: "2",
+							text: "魔法",
 							onclick: () => {
-								console.log("test3")
+								this.events.UI.AddMessage.broadcast("[未実装です。]")
 							}
 						},
 					]
@@ -257,21 +276,25 @@ export default class UI {
 				{ //row 2
 					buttons: [
 						{
-							text: "3",
+							text: "ステータス",
 							onclick: () => {
-								console.log("left")
+								this.events.UI.AddMessage.broadcast("[未実装です。]")
 							}
 						},
 						{
-							text: "4",
+							text: "オプション",
 							onclick: () => {
-								console.log("down")
+								this.events.UI.AddMessage.broadcast("[未実装です。]")
 							}
 						},
 						{
-							text: "5",
+							text: "タイトルに戻る",
 							onclick: () => {
-								console.log("right")
+								this.events.UI.AddMessage.broadcast("[タイトルに戻ります。]")
+								setTimeout(() => {
+									this.events.UI.ClearMessage.broadcast()
+									this.events.Common.BackToTitle.broadcast()
+								}, 500)
 							}
 						},
 					]
@@ -300,7 +323,7 @@ export default class UI {
 						},
 						{
 							text: "menu",
-							onclick: () => { this.openMenu() }
+							onclick: () => { this.openPopupMenu() }
 						},
 					]
 				},

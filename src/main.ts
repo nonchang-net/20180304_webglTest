@@ -27,7 +27,7 @@ import MyUIEvents from './Event/UIEvent'
 
 import ThreeDScene from './Scenes/ThreeDScene'
 
-import SoundManager from './Sound/SoundManager'
+import { default as SoundManager, BGMKind } from './Sound/SoundManager'
 import SampleSound from './Sound/Synthesize/SampleSound'
 
 import * as Maze from './Dangeon/Maze'
@@ -65,6 +65,8 @@ class Main {
 	private ui: UI
 	private gameScene: ThreeDScene
 	private dirty: boolean = true
+	private maze: Maze.Maze
+	private minimap: MapView
 
 	constructor(body: HTMLBodyElement) {
 		this.initAsync(body)
@@ -119,24 +121,33 @@ class Main {
 		// })
 		// user.gameState.value = GameStateKind.InGame
 
-
-		// =====================
-		// 迷路情報初期化
-		// var maze = new Maze.Factory().Create(9, 9)
-		var maze = new Maze.Factory().Create(23, 23)
-		// console.log(maze);
-
-
-		// =====================
-		// キーボードイベント監視クラス初期化
-		new Keyboard(events)
-
-
 		// =====================
 		// UI初期化
 		// タイトル用ボタン領域表示
 		const ui = new UI(events, body)
+		this.ui = ui
 
+		// =====================
+		// サウンド初期化
+		// TODO: マスター読ませてロード管理させたい
+		const soundManager = new SoundManager(events)
+		await soundManager.asyncSetup()
+		soundManager.startBGM(BGMKind.Opening)
+
+		// =====================
+		// タイトルシーン初期化・入力待機
+		const titleScene = new TitleScene(events)
+		ui.main.appendChild(titleScene.element)
+		await titleScene.start()
+		soundManager.startBGM(BGMKind.Quest)
+
+		// =====================
+		// ゲームシーン用下部ボタン初期化
+		await ui.initGameButton()
+
+		// =====================
+		// キーボードイベント監視クラス初期化
+		new Keyboard(events)
 
 		// =====================
 		// メッセージシステム初期化
@@ -144,42 +155,25 @@ class Main {
 		const messages = new Messages(events, 5, 100)
 		ui.main.appendChild(messages.element)
 
-
 		// =====================
 		// THREE.js用の3d canvas作成
 		const canvas = new Styler("canvas").appendTo(ui.main).getElement()
 		ui.main.appendChild(canvas)
-
-
-		// =====================
-		// タイトルシーン初期化・入力待機
-		const titleScene = new TitleScene(events)
-		ui.main.appendChild(titleScene.element)
-		await titleScene.start()
-
-
-		// =====================
-		// ゲームシーン用下部ボタン初期化
-		await ui.initGameButton()
-
 
 		// =====================
 		// 3d canvas用のマウス・タッチイベント登録
 		// - 3D Canvas初期化後
 		const uiEvent = new MyUIEvents(canvas)
 
-
 		// =====================
-		// サウンド初期化
-		// TODO: マスター読ませてロード管理させたい
-		const soundManager = new SoundManager(events)
-		await soundManager.asyncSetup()
-
+		// 迷路情報初期化
+		this.initMaze()
 
 		// =====================
 		// マップUI初期化
 		// - events, maze初期化後
-		const map = new MapView(events, maze)
+		const map = new MapView(events, this.maze)
+		this.minimap = map
 		ui.main.appendChild(map.element)
 		ui.main.appendChild(map.playerMarkCanvas)
 		map.update()
@@ -187,7 +181,7 @@ class Main {
 		// =====================
 		// ゲームシーン初期化
 		const game = new ThreeDScene(events, canvas, map, uiEvent, ui.main)
-		await game.InitGameScene(maze)
+		await game.InitGameScene(this.maze)
 
 		// =====================
 		// welcomeメッセージとバージョン情報
@@ -195,7 +189,7 @@ class Main {
 
 
 		// =====================
-		// 敵エンカウントグラフィックス表示テスト
+		// 敵エンカウントグラフィックス表示UI
 
 		const encountUI = new Encount(events, ui)
 		ui.main.appendChild(encountUI.element)
@@ -219,10 +213,10 @@ class Main {
 				const monsterIndex = Math.floor(Math.random() * master.monsters.definitions.length)
 				console.log(`test : ${master.monsters.definitions[monsterIndex].name}`);
 				(async () => {
-					soundManager.startButtleBgm()
+					soundManager.startBGM(BGMKind.Battle)
 					await encountUI.encount(monsterIndex)
 					await encountUI.clear()
-					soundManager.startBgm1()
+					soundManager.startBGM(BGMKind.Quest)
 				})()
 			}
 		})
@@ -258,6 +252,12 @@ class Main {
 			events.UI.AddMessage.broadcast("あなたたちは右に回った。")
 		})
 
+		//タイトルに戻すイベント
+
+		events.Common.BackToTitle.subscribe(this.constructor.name, () => {
+			this.backToTitle()
+		})
+
 		// =====================
 		// 味方ステータス表示テスト
 
@@ -271,8 +271,31 @@ class Main {
 			statuses.push(status)
 		}
 
-
-
 	}// constructor
+
+
+	// =====================
+	// タイトルに戻る
+	// - ここでは迷路の再初期化
+
+	private backToTitle() {
+		this.initMaze()
+		this.minimap.maze = this.maze
+		this.minimap.update()
+	}
+
+
+	// =====================
+	// 迷路情報初期化
+	// TODO: マスターからフロア定義を読ませたい
+	private initMaze() {
+		// var maze = new Maze.Factory().Create(9, 9)
+		var maze = new Maze.Factory().Create(23, 23)
+		this.maze = maze
+		// console.log(maze);
+
+
+	}
+
 
 }//class Main

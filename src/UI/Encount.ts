@@ -172,6 +172,12 @@ export default class Encount {
 					{ //row 1
 						buttons: [
 							{
+								text: "防御",
+								onclick: () => {
+									this.events.UI.AddMessage.broadcast("[未実装です。]")
+								}
+							},
+							{
 								text: "戦う",
 								onclick: async () => {
 									this.events.UI.AddMessage.broadcast("DEBUG: 敵を強制的に倒した。")
@@ -187,15 +193,9 @@ export default class Encount {
 								}
 							},
 							{
-								text: "魔法",
-								onclick: () => {
-									console.log("TODO")
-								}
-							},
-							{
 								text: "menu",
 								onclick: () => {
-									console.log("test3")
+									this.events.UI.OpenPopupMenu.broadcast()
 								}
 							},
 						]
@@ -203,15 +203,15 @@ export default class Encount {
 					{ //row 2
 						buttons: [
 							{
-								text: "防御",
+								text: "魔法",
 								onclick: () => {
-									console.log("left")
+									this.events.UI.AddMessage.broadcast("[未実装です。]")
 								}
 							},
 							{
-								text: "道具",
+								text: "アイテム",
 								onclick: () => {
-									console.log("down")
+									this.events.UI.AddMessage.broadcast("[未実装です。]")
 								}
 							},
 							{

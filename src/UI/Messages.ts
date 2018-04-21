@@ -68,6 +68,14 @@ export default class Messages {
 			}
 			this.lines[maxLine - 1].set(str, messageSpeed)
 		})
+
+		events.UI.ClearMessage.subscribe(this.constructor.name, () => {
+			for (let i = 0; i < maxLine; i++) {
+				this.lines[i].setImmidiate("")
+			}
+		})
+
+
 	}
 
 }

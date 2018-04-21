@@ -11,7 +11,7 @@ export default class MapView {
 
 	private readonly CellDrawSize = 4
 
-	private maze: Maze.Maze
+	public maze: Maze.Maze
 
 	private events: GameEvents
 
