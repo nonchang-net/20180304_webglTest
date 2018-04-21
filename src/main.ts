@@ -19,11 +19,11 @@ Copyright(C) nonchang.net All rights reserved.
 import Vector2 from './Common/Vector2'
 
 import * as Sub from './sub'
+import GameEvents from './Event/GameEvents'
 import UI from './UI/UI'
 import Keyboard from './UI/Keyboard'
 import Styler from './UI/Styler'
 import MyUIEvents from './Event/UIEvent'
-import GameEvents from './Event/GameEvents'
 
 import ThreeDScene from './Scenes/ThreeDScene'
 
@@ -43,6 +43,7 @@ import Popup from './UI/Popup'
 import { default as CharacterStatus, FaceKind } from './UI/CharacterStatus';
 import Bar from './UI/Bar';
 import Encount from './UI/Encount';
+import TitleScene from './Scenes/TitleScene';
 
 // Windowスコープを拡張: コンソールからMainのpublic要素にアクセスできるように
 // 例: console.log("test",window.Main.dirty) //note: 実行時はjavascriptなので、privateプロパティも参照できる点に注意
@@ -133,6 +134,7 @@ class Main {
 
 		// =====================
 		// UI初期化
+		// タイトル用ボタン領域表示
 		const ui = new UI(events, body)
 
 
@@ -147,6 +149,18 @@ class Main {
 		// THREE.js用の3d canvas作成
 		const canvas = new Styler("canvas").appendTo(ui.main).getElement()
 		ui.main.appendChild(canvas)
+
+
+		// =====================
+		// タイトルシーン初期化・入力待機
+		const titleScene = new TitleScene(events)
+		ui.main.appendChild(titleScene.element)
+		await titleScene.start()
+
+
+		// =====================
+		// ゲームシーン用下部ボタン初期化
+		await ui.initGameButton()
 
 
 		// =====================

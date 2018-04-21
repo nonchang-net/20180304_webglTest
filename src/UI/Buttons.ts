@@ -43,6 +43,7 @@ export interface IUpdateDataButton {
  */
 export class Buttons {
 
+	cover: HTMLDivElement
 	element: HTMLDivElement
 	rows = new Array<ButtonRow>()
 	buttons = new Array<Button>()
@@ -51,10 +52,18 @@ export class Buttons {
 	 * コンストラクタ
 	 */
 	constructor(styler: (elm) => any) {
-		this.element = new Styler("div")
-			.getElement()
-			;
+		this.cover = new Styler("div").b().l().getElement() //TODO: ボタン領域に別オブジェクトを重ねたい……
+		this.cover.style.position = "relative"
+		// this.cover.style.border = "5px solid green"
+		// this.cover.style.transform = "translateY(-100%)"
 
+		// this.cover.style.width = "100%"
+		// this.cover.style.height = "100%"
+
+
+		this.element = new Styler("div").appendTo(this.cover).getElement()
+
+		this.element.style.display = "relative"
 		this.element.style.boxShadow = "0 0 5px 5px rgba(0,0,0,1) "
 
 		const row1 = new ButtonRow(styler)
@@ -109,6 +118,12 @@ export class Buttons {
 			this.shift += this.span
 		}
 		await Utils.waitUntil(() => { return this.isAnimation() })
+	}
+
+	hideImmidiate() {
+		for (var buttons of this.buttons) {
+			buttons.hideImmidiate()
+		}
 	}
 
 	private isAnimation(): boolean {
@@ -319,11 +334,15 @@ class Button {
 				this.element.style.opacity = `${1 - x}`
 			},
 			onComplete: () => {
-				this.element.style.transform = `translateX(${this.animPx}px)`
-				this.isAnimation = false
-				this.resetStyle()
+				this.hideImmidiate()
 			}
 		})
+	}
+
+	hideImmidiate() {
+		this.element.style.opacity = `0`
+		this.isAnimation = false
+		this.resetStyle()
 	}
 
 	// async anim(shift: number = 0, show: boolean, progress: boolean = true) {

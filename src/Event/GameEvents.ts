@@ -46,6 +46,8 @@ class UIEvents {
 	Disable = new Event()
 	Enable = new Event()
 
+	TitleTap = new Event()
+
 	TouchAndKeyboardSwitch = new Event<boolean>()
 	BottomButtonSwitch = new Event<boolean>()
 

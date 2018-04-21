@@ -6,21 +6,15 @@ Copyright(C) xxx. All rights reserved.
 
 ## 概要
 
-- 未検討。とりあえずdomのdiv#uiの参照をこちらに任せてみる。
-- どう実装するか考える。
-- ゲームの体裁を整える方策を検討
+- UIをざっくりまとめる場所
+- クラス分割できないUI系の雑用担当という様相に。整理できないものか？
 
 
-## 仮でcreateElement()で制御
+## メモ: createElementによる実装は無理があったかも
 
 - 生成一つ取ってもCSS設定にしても正直手間。
 - react/vue/web component使うか？
 
-
-## どんな機能が必要か
-
-- 汎用ポップアップ
-- イージング: 「tap to start」点滅処理など
 
 */
 
@@ -37,6 +31,7 @@ export default class UI {
 
 	uiElement: HTMLElement
 	main: HTMLElement
+	tapToStart: HTMLElement
 	buttons: ButtonClasses.Buttons
 	events: GameEvents
 
@@ -93,11 +88,18 @@ export default class UI {
 			elm.style.alignItems = "center"
 		})
 		this.buttons = buttons
-		this.uiElement.appendChild(buttons.element)
+
+		this.uiElement.appendChild(buttons.cover)
+		// this.uiElement.appendChild(buttons.element)
+
 		buttons.element.style.background = "url(UI/texturemate_metal10_small.jpg)"
 		buttons.element.style.zIndex = "1"
 		buttons.element.style.backgroundSize = "cover"
 		// this.uiElement.style.backgroundColor = "rgba(1,1,1,0.5)"
+
+		// buttons.element.style.display = "none"
+		buttons.hideImmidiate()
+
 
 		// UIイベントsubscribe
 		events.UI.Enable.subscribe(this.constructor.name, () => {
@@ -113,11 +115,78 @@ export default class UI {
 		events.Keyboard.Z.subscribe(this.constructor.name, () => { this.openCommands() })
 		events.Keyboard.X.subscribe(this.constructor.name, () => { this.openMenu() })
 
+		this.initTitleButton()
+	}
+
+	private initTitleButton() {
+
+		// タイトル画面用表示初期化
+		// Tap to start表示を開始オプション作成
+
+		const tapToStart = new Styler("div").fullWindow().flexVertical().center().middle().getElement()
+		this.tapToStart = tapToStart
+		tapToStart.style.transform = "translateY(-100%)" //TODO: これがないと画面外に出てしまう。flexで押し出されてる？ よくわからないので別途検証しておきたい……。
+		// tapToStart.style.opacity = "0.3"
+
+		// tapToStart.style.background = "red"
+
+		const text = new Styler("p").text("Tap to Start").appendTo(tapToStart).getElement()
+		text.style.color = "#333"
+		text.style.textShadow = "0px 0px 10px #fff, 1px 1px 4px rgba(0, 0, 0, 0.7)"
+		text.style.fontFamily = "'Niconne', Arial, sans-serif"
+		text.style.fontSize = "30px"
+		text.style.letterSpacing = "3px"
+
+		this.buttons.cover.appendChild(tapToStart);
+
+		const soundCheckRow = new Styler("div").flexHorizontal().appendTo(tapToStart).getElement()
+		soundCheckRow.style.marginTop = "10px"
+		const soundCheck = new Styler("input").appendTo(soundCheckRow).getElement()
+		soundCheck.setAttribute("type", "checkbox")
+		soundCheck.checked = true
+		soundCheck.style.width = "30px"
+		soundCheck.style.height = "30px"
+		const soundCheckText = new Styler("p").text("音楽を再生する (16.4MB)").appendTo(soundCheckRow).getElement()
+		soundCheckText.style.color = "white"
+
+
+		const resourceDeleteRow = new Styler("div").flexHorizontal().appendTo(tapToStart).getElement()
+		resourceDeleteRow.style.marginTop = "10px"
+		const resourceDeleteButton = new Styler("button").text("リソース削除").appendTo(resourceDeleteRow).getElement()
+		resourceDeleteButton.style.border = "1px solid gray"
+		resourceDeleteButton.style.background = "white"
+		resourceDeleteButton.style.padding = "5px"
+		resourceDeleteButton.style.borderRadius = "5px"
+
+		//タップイベント設定
+
+		tapToStart.onclick = e => {
+			console.log(e);
+			this.tapToStart.style.display = "none"
+			this.events.UI.TitleTap.broadcast()
+		}
+
+		soundCheck.onclick = e => {
+			e.stopPropagation()
+			console.log(soundCheck.checked);
+		}
+
+		resourceDeleteButton.onclick = e => {
+			e.stopPropagation()
+			console.log(e);
+		}
+	}
+
+
+	async initGameButton() {
+
+		this.buttons.element.style.display = "block"
+
 		this.setMainMenu();
 
 		(async () => {
 			// console.log("all show")
-			await buttons.show()
+			await this.buttons.show()
 		})()
 	}
 
