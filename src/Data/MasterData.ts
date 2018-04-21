@@ -21,10 +21,9 @@ export default class MasterData {
 		//TODO: S3からローカルストレージにlastUpdateを保存・読み込み・差分確認
 		// - また、マスターデータクラス系の更新処理は共通処理なので継承関係にしていいと思う
 		if (this.lastUpdate < lastUpdate) {
-			console.log("test1")
 			this.monsters = await new Monsters().asyncSetup()
 			this.characters = await new Characters().asyncSetup()
-			console.log("wtf", this.monsters, this.characters)
+			// console.log("check:", this.monsters, this.characters)
 			this.lastUpdate = lastUpdate
 			this.Save()
 		}

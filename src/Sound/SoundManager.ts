@@ -29,25 +29,44 @@ export enum BGMKind {
 	Opening,
 	Quest,
 	Battle,
+	BossBattle,
 }
 
 export default class SoundManager {
 
-	readonly BGM_ENABLED_FLAG_KEY = 'BGM Enabled'
+	static readonly BGM_ENABLED_FLAG_KEY = 'BGM Enabled'
 
 	context: AudioContext
 
+	buffers: {}
+
 	currentBGMKind: BGMKind = BGMKind.Opening
 
-	titleBGM: AudioBuffer
-	questBGM: AudioBuffer
-	battleBGM: AudioBuffer
+	//TODO: kind enumにまとめたい。また、マスターデータ化したい。。
+	titleBGMBuffer: AudioBuffer
+	questBGMBuffer: AudioBuffer
+	battleBGMBuffer: AudioBuffer
+	bossBattleBGMBuffer: AudioBuffer
+
 	currentBGMSource: AudioBufferSourceNode
 	playing = false
 
+	//TODO: kind enumにまとめたい。また、マスターデータ化したい。。
 	private readonly titleBgmUrl = './sounds/bgm/likeabirdinacage_short.mp3'
-	private readonly bgm1url = './sounds/bgm/dangeon01_sketch01.mp3'
-	private readonly battleUrl = './sounds/bgm/battle01_sketch01.mp3'
+	private readonly questBgmUrl = './sounds/bgm/dangeon01_sketch01.mp3'
+	private readonly battleBgmUrl = './sounds/bgm/battle01_sketch01.mp3'
+	private readonly bossBattleBgmUrl = './sounds/bgm/rasinban_battle_mix1.mp3'
+
+	// private readonly urls = {
+	// 	[BGMKind.Opening]: './sounds/bgm/likeabirdinacage_short.mp3',
+	// 	[BGMKind.Quest]: './sounds/bgm/dangeon01_sketch01.mp3',
+	// 	[BGMKind.Battle]: './sounds/bgm/battle01_sketch01.mp3',
+	// 	[BGMKind.BossBattle]: './sounds/bgm/rasinban_battle_mix1.mp3',
+	// }
+
+	private readonly bufferStartPos = {
+		[BGMKind.Opening]: 1.8,
+	}
 
 	constructor(events: GameEvents) {
 		try {
@@ -59,61 +78,71 @@ export default class SoundManager {
 			this.context = new fallbackScope.webkitAudioContext();
 		}
 
-		const bgmEnabledLocalStorageValue = localStorage.getItem(this.BGM_ENABLED_FLAG_KEY)
+		const bgmEnabledLocalStorageValue = localStorage.getItem(SoundManager.BGM_ENABLED_FLAG_KEY)
 		// console.log(bgmEnabledLocalStorageValue)
 		const bgmEnabled = !bgmEnabledLocalStorageValue ? false : bgmEnabledLocalStorageValue == "true"
 
-		console.log(`bgm enabled: ${bgmEnabled}`);
+		// console.log(`bgm enabled: ${bgmEnabled}`);
 
 		// if (bgmEnabled) {
 		// 	this.startBGM(BGMKind.Opening)
 		// }
 		events.Sound.ToggleBgm.subscribe(this.constructor.name, () => {
 			this.toggleBgm1()
-			localStorage.setItem(this.BGM_ENABLED_FLAG_KEY, `${this.playing}`)
+			localStorage.setItem(SoundManager.BGM_ENABLED_FLAG_KEY, `${this.playing}`)
 			// console.log(`${this.bgm1IsPlaying} `)
 		})
 
 		events.Sound.TurnBgmOn.subscribe(this.constructor.name, () => {
 			this.updateSetting({ enabled: true })
 			this.startBGM()
-			localStorage.setItem(this.BGM_ENABLED_FLAG_KEY, `${this.playing}`)
-			console.log(`${this.playing} `)
+			localStorage.setItem(SoundManager.BGM_ENABLED_FLAG_KEY, `${this.playing}`)
+			// console.log(`${this.playing} `)
 		})
 
 		events.Sound.TurnBgmOff.subscribe(this.constructor.name, () => {
 			this.updateSetting({ enabled: false })
 			this.stopBgm()
-			localStorage.setItem(this.BGM_ENABLED_FLAG_KEY, `${this.playing}`)
-			console.log(`${this.playing} `)
+			localStorage.setItem(SoundManager.BGM_ENABLED_FLAG_KEY, `${this.playing}`)
+			// console.log(`${this.playing} `)
 		})
+
+		// =====================
+		// TET: 初回アクセスポップアップ実装テスト
+		// - 初期化タイミングは実際にはどこになるだろう？
+		// - セーブデータを自動読み込みするのであれば、UserData初期化のあとになるだろうか。
+
+		// const contents = new Styler("div").flexVertical().middle().center().getElement()
+
+		// new Styler("p").text(" - [ゲームタイトル] - ").appendTo(contents)
+		// new Styler("h2").text("音楽を再生しますか？").appendTo(contents)
+		// // new Styler("hr").appendTo(contents)
+		// new Styler("p").text("再生する場合、10.2MBの事前ダウンロードが始まります。").appendTo(contents)
+		// new Styler("p").text("音楽データのダウンロードはメニューからいつでもできます。").appendTo(contents)
+		// new Styler("p").text("ダウンロード済みのローカルストレージ中の音楽データは後から削除できます。").appendTo(contents)
+
+		// const cancelled = await Popup.OpenConfirmPopup(contents)
+		// console.log(`popup closed. ${cancelled}`)
 
 	}
 
 	async asyncSetup() {
-		// const responce = await fetch(this.bgm1url)
-		// const buffer = await responce.arrayBuffer()
-
-		// const audioBuffer = await this.loadSoundBuffer(buffer)
-		// this.questBGM = audioBuffer as AudioBuffer
-
-		// const responce2 = await fetch(this.battleUrl)
-		// const buffer2 = await responce2.arrayBuffer()
-
-		// const audioBuffer2 = await this.loadSoundBuffer(buffer2)
-		// this.battleBGM = audioBuffer2 as AudioBuffer
-
-		await this.loadAudioBufferByUrl(this.titleBgmUrl, this.titleBGM)
-		await this.loadAudioBufferByUrl(this.bgm1url, this.questBGM)
-		await this.loadAudioBufferByUrl(this.battleUrl, this.battleBGM)
+		// 	this.buffers[BGMKind.Opening] = await this.loadAudioBufferByUrl(this.urls[BGMKind.Opening])
+		// 	this.buffers[BGMKind.Quest] = await this.loadAudioBufferByUrl(this.urls[BGMKind.Opening])
+		// 	this.buffers[BGMKind.Battle] = await this.loadAudioBufferByUrl(this.urls[BGMKind.Battle])
+		// 	this.buffers[BGMKind.BossBattle] = await this.loadAudioBufferByUrl(this.urls[BGMKind.BossBattle])
+		this.titleBGMBuffer = await this.loadAudioBufferByUrl(this.titleBgmUrl)
+		this.questBGMBuffer = await this.loadAudioBufferByUrl(this.questBgmUrl)
+		this.battleBGMBuffer = await this.loadAudioBufferByUrl(this.battleBgmUrl)
+		this.bossBattleBGMBuffer = await this.loadAudioBufferByUrl(this.bossBattleBgmUrl)
 	}
 
-	async loadAudioBufferByUrl(url: string, targetBuffer: AudioBuffer) {
+	async loadAudioBufferByUrl(url: string): Promise<AudioBuffer> {
 		const responce = await fetch(url)
 		const buffer = await responce.arrayBuffer()
 
 		const audioBuffer = await this.loadSoundBuffer(buffer)
-		targetBuffer = audioBuffer as AudioBuffer
+		return audioBuffer as AudioBuffer
 	}
 
 	//note: safariではawaitでdecodeAudioDataを書けなかった。（Not enough arguments）
@@ -126,19 +155,19 @@ export default class SoundManager {
 				// this.questBGM = buffer2
 				resolve(buffer2)
 			}, (error) => {
-				console.log('sound buffer load error', error)
+				console.error('sound buffer load error', error)
 				reject(null)
 			})
 		})
 	}
 
-	private startBGMSource(buffer: AudioBuffer) {
+	private startBGMSource(buffer: AudioBuffer, startPosition: number = 0) {
 		console.log(`再生開始 ${this.currentBGMKind}`);
 		this.currentBGMSource = this.context.createBufferSource()
 		this.currentBGMSource.buffer = buffer
 		this.currentBGMSource.loop = true
 		this.currentBGMSource.connect(this.context.destination)
-		this.currentBGMSource.start(0)
+		this.currentBGMSource.start(0, startPosition)
 		this.playing = true
 	}
 
@@ -150,20 +179,35 @@ export default class SoundManager {
 			//引数があれば、現在再生中kindとして保存
 			this.currentBGMKind = bgmKind
 		}
-		console.log("sound_enabled", localStorage.getItem(this.BGM_ENABLED_FLAG_KEY))
-		if (localStorage.getItem(this.BGM_ENABLED_FLAG_KEY) == "false") {
+		// console.log("sound_enabled", localStorage.getItem(SoundManager.BGM_ENABLED_FLAG_KEY))
+		if (localStorage.getItem(SoundManager.BGM_ENABLED_FLAG_KEY) == "false") {
 			console.log("notice: サウンド設定がオフです。");
 			return
 		}
+
+		//指定された曲を再生
+		this.stopBgm()
+		// if (this.bufferStartPos[bgmKind]) {
+		// 	this.startBGMSource(this.buffers[bgmKind], this.bufferStartPos[bgmKind])
+		// } else {
+		// 	this.startBGMSource(this.buffers[bgmKind])
+		// }
+
+		const startPos = bgmKind == BGMKind.Opening ? 1.8 : 0
+		// this.startBGMSource(this.buffers[bgmKind], startPos)
+
 		switch (bgmKind) {
 			case BGMKind.Opening:
-				this.startBGMSource(this.titleBGM)
+				this.startBGMSource(this.titleBGMBuffer, 1.8)
 				break
 			case BGMKind.Quest:
-				this.startBGMSource(this.questBGM)
+				this.startBGMSource(this.questBGMBuffer)
 				break
 			case BGMKind.Battle:
-				this.startBGMSource(this.battleBGM)
+				this.startBGMSource(this.battleBGMBuffer)
+				break
+			case BGMKind.BossBattle:
+				this.startBGMSource(this.bossBattleBGMBuffer)
 				break
 		}
 	}
@@ -182,7 +226,7 @@ export default class SoundManager {
 	}
 
 	updateSetting(settings: { enabled: boolean }) {
-		localStorage.setItem(this.BGM_ENABLED_FLAG_KEY, settings.enabled.toString());
+		localStorage.setItem(SoundManager.BGM_ENABLED_FLAG_KEY, settings.enabled.toString());
 	}
 
 	toggleBgm1() {

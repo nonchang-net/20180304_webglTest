@@ -18,12 +18,13 @@ Copyright(C) nonchang.net All rights reserved.
 import mockup from './Monsters_Mockup'
 import * as MasterData from '../MasterData'
 import Actor from '../Structures/Actor'
-import MaxLimitedNumber from '../../Common/MaxLimitedNumber'
+import MaxLimitedNumber from '../../Common/MaxLimitedNumber' //TODO: マスターでこのデータ構造は不要。でもActorが要求している。マスター定義では最大値のみ、ユーザデータとしてcloneする際にMaxLimitedNumber型にしたい。
 
 // マスターデータメインクラス
 // UNDONE: とりあえずmain.tsから切り出しただけでごちゃごちゃしてる。どう整理していこう？
 export default class Monsters {
 
+	//TODO: このフラグはmain.ts側で渡せるようにしたい
 	readonly USE_MOCKUP = true
 
 	definitions: Array<Actor>

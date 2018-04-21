@@ -156,7 +156,7 @@ export default class UI {
 		soundCheckRow.style.marginTop = "10px"
 		const soundCheck = new Styler("input").appendTo(soundCheckRow).getElement()
 		soundCheck.setAttribute("type", "checkbox")
-		soundCheck.checked = true
+		soundCheck.checked = localStorage.getItem(SoundManager.BGM_ENABLED_FLAG_KEY) == "true"
 		soundCheck.style.width = "30px"
 		soundCheck.style.height = "30px"
 		const soundCheckText = new Styler("p").text("音楽を再生する (16.4MB)").appendTo(soundCheckRow).getElement()

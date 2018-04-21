@@ -60,7 +60,9 @@ window.addEventListener('DOMContentLoaded', () => {
 	);
 });
 
-class Main {
+export default class Main {
+
+	static readonly version = "20180421.1802"
 
 	private ui: UI
 	private gameScene: ThreeDScene
@@ -89,37 +91,18 @@ class Main {
 		await master.asyncSetup(lastUpdate)
 
 		// console.log("master dump", master.monsters.defs)
-
 		const user = new UserData(master)
 
 
 		// =====================
-		// 初回アクセスポップアップ実装テスト
-		// - 初期化タイミングは実際にはどこになるだろう？
-		// - セーブデータを自動読み込みするのであれば、UserData初期化のあとになるだろうか。
-
-		// const contents = new Styler("div").flexVertical().middle().center().getElement()
-
-		// new Styler("p").text(" - [ゲームタイトル] - ").appendTo(contents)
-		// new Styler("h2").text("音楽を再生しますか？").appendTo(contents)
-		// // new Styler("hr").appendTo(contents)
-		// new Styler("p").text("再生する場合、10.2MBの事前ダウンロードが始まります。").appendTo(contents)
-		// new Styler("p").text("音楽データのダウンロードはメニューからいつでもできます。").appendTo(contents)
-		// new Styler("p").text("ダウンロード済みのローカルストレージ中の音楽データは後から削除できます。").appendTo(contents)
-
-		// const cancelled = await Popup.OpenConfirmPopup(contents)
-		// console.log(`popup closed. ${cancelled}`)
-
-
-
-
-		// =====================
 		// TEST: Reactive Property検討。とりあえず少ない記述で目標は達成？
-
+		// ただ、gameState enumの出番はないかも。async/awaitとイベントでシーン遷移は十分管理できる認識
+		// ステータスのHPバーなどのUI更新で使いたいかも。TODO。
 		// user.gameState.subscribe(this.constructor.name, (state) => {
 		// 	console.log(`state changed. ${state}`)
 		// })
 		// user.gameState.value = GameStateKind.InGame
+
 
 		// =====================
 		// UI初期化
@@ -129,7 +112,7 @@ class Main {
 
 		// =====================
 		// サウンド初期化
-		// TODO: マスター読ませてロード管理させたい
+		// TODO: マスター読ませてロードファイル名を管理させたい
 		const soundManager = new SoundManager(events)
 		await soundManager.asyncSetup()
 		soundManager.startBGM(BGMKind.Opening)
@@ -185,8 +168,7 @@ class Main {
 
 		// =====================
 		// welcomeメッセージとバージョン情報
-		events.UI.AddMessage.broadcast("welcome to cage [ver 20180418 0058]")
-
+		events.UI.AddMessage.broadcast(`welcome to cage [ver ${Main.version}]`)
 
 		// =====================
 		// 敵エンカウントグラフィックス表示UI
@@ -213,7 +195,11 @@ class Main {
 				const monsterIndex = Math.floor(Math.random() * master.monsters.definitions.length)
 				console.log(`test : ${master.monsters.definitions[monsterIndex].name}`);
 				(async () => {
-					soundManager.startBGM(BGMKind.Battle)
+					if (Math.random() > 0.5) {
+						soundManager.startBGM(BGMKind.Battle)
+					} else {
+						soundManager.startBGM(BGMKind.BossBattle)
+					}
 					await encountUI.encount(monsterIndex)
 					await encountUI.clear()
 					soundManager.startBGM(BGMKind.Quest)
