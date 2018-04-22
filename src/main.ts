@@ -62,7 +62,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
 export default class Main {
 
-	static readonly version = "20180421.1802"
+	static readonly version = "20180421.1802.00"
 
 	private ui: UI
 	private gameScene: ThreeDScene

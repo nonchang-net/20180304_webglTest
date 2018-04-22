@@ -54,7 +54,7 @@ export default class TitleScene {
 		// 初回要素別アニメーション
 
 		const baseDuration = 1200
-		const allSpanDuration = 200
+		const allSpanDuration = 500
 
 		const updateSpan = (span: HTMLSpanElement, progress: number) => {
 			span.style.opacity = `${progress}`
@@ -71,7 +71,7 @@ export default class TitleScene {
 				for (let span of spans) {
 					count++;
 					const offset = count / spans.length
-					// spanProgress = 0.3 * (400/500) + 0.25 * (100/500)
+					// memo: let spanProgress = 0.3 * (400/500) + 0.25 * (100/500)
 					let spanProgress = progress * (deltaDuration / baseDuration) + offset * (allSpanDuration / baseDuration)
 					if (spanProgress > 1) spanProgress = 1
 					updateSpan(span, spanProgress)
