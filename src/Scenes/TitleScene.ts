@@ -47,18 +47,18 @@ export default class TitleScene {
 
 		const version = new Styler("div").text(`ver ${Main.version}`).abs().b().appendTo(this.element).getElement()
 		version.style.fontSize = "9px"
-		version.style.color = "white"
+		version.style.color = "black"
 		version.style.marginBottom = "10px"
 
 
 		// 初回要素別アニメーション
 
-		const baseDuration = 1200
-		const allSpanDuration = 500
+		const baseDuration = 1800
+		const allSpanDuration = 200
 
 		const updateSpan = (span: HTMLSpanElement, progress: number) => {
 			span.style.opacity = `${progress}`
-			span.style.textShadow = `0px 0px ${120 * (1 - progress) + 10}px #fff`
+			span.style.textShadow = `0px 0px ${(120 * (1 - progress)) + 10}px #fff`
 			// span.style.color = progress > 0.9 ? '#333' : 'transparent'
 			span.style.color = `rgba(23,23,23,${progress})`
 		}
@@ -99,8 +99,8 @@ export default class TitleScene {
 	styling(ele: HTMLParagraphElement | HTMLDivElement | HTMLSpanElement) {
 		ele.style.fontFamily = "'Niconne', Arial, sans-serif"
 		ele.style.fontSize = "60px"
-		ele.style.color = "#333"
-		ele.style.textShadow = "0px 0px 10px #fff, 1px 1px 4px rgba(255, 255, 255, 0.7)"
+		ele.style.color = "rgba(0,0,0,0)"
+		// ele.style.textShadow = "0px 0px 10px #fff, 1px 1px 4px rgba(255, 255, 255, 0.7)"
 	}
 
 	async start(): Promise<{}> {

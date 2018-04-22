@@ -159,17 +159,17 @@ export default class UI {
 		soundCheck.checked = localStorage.getItem(SoundManager.BGM_ENABLED_FLAG_KEY) == "true"
 		soundCheck.style.width = "30px"
 		soundCheck.style.height = "30px"
-		const soundCheckText = new Styler("p").text("音楽を再生する (16.4MB)").appendTo(soundCheckRow).getElement()
+		const soundCheckText = new Styler("p").text("音楽を再生する").appendTo(soundCheckRow).getElement()
 		soundCheckText.style.color = "white"
 
-
-		const resourceDeleteRow = new Styler("div").flexHorizontal().appendTo(tapToStart).getElement()
-		resourceDeleteRow.style.marginTop = "10px"
-		const resourceDeleteButton = new Styler("button").text("リソース削除").appendTo(resourceDeleteRow).getElement()
-		resourceDeleteButton.style.border = "1px solid gray"
-		resourceDeleteButton.style.background = "white"
-		resourceDeleteButton.style.padding = "5px"
-		resourceDeleteButton.style.borderRadius = "5px"
+		// TODO: リソース削除
+		// const resourceDeleteRow = new Styler("div").flexHorizontal().appendTo(tapToStart).getElement()
+		// resourceDeleteRow.style.marginTop = "10px"
+		// const resourceDeleteButton = new Styler("button").text("リソース削除").appendTo(resourceDeleteRow).getElement()
+		// resourceDeleteButton.style.border = "1px solid gray"
+		// resourceDeleteButton.style.background = "white"
+		// resourceDeleteButton.style.padding = "5px"
+		// resourceDeleteButton.style.borderRadius = "5px"
 
 		//タップイベント設定
 
@@ -190,10 +190,10 @@ export default class UI {
 			}
 		}
 
-		resourceDeleteButton.onclick = e => {
-			e.stopPropagation()
-			console.log(e);
-		}
+		// resourceDeleteButton.onclick = e => {
+		// 	e.stopPropagation()
+		// 	console.log(e);
+		// }
 	}
 
 

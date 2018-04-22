@@ -62,7 +62,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
 export default class Main {
 
-	static readonly version = "20180421.1802.00"
+	static readonly version = "20180422.1533.00"
 
 	private ui: UI
 	private gameScene: ThreeDScene
@@ -168,7 +168,7 @@ export default class Main {
 
 		// =====================
 		// welcomeメッセージとバージョン情報
-		events.UI.AddMessage.broadcast(`welcome to cage [ver ${Main.version}]`)
+		events.UI.AddMessage.broadcast(`welcome to dangeon's and examples [ver ${Main.version}]`)
 
 		// =====================
 		// 敵エンカウントグラフィックス表示UI
@@ -192,10 +192,10 @@ export default class Main {
 				// エンカウント
 				// TODO: エンカウントは「歩き始める前」の方がよくないか？ 壁際エンカウントを防げる。
 				// TODO: モンスターマスターの直接参照は是か非か。ちょっと考えたい。。
-				const monsterIndex = Math.floor(Math.random() * master.monsters.definitions.length)
-				console.log(`test : ${master.monsters.definitions[monsterIndex].name}`);
+				const monsterIndex = Math.floor(Math.random() * master.monsters.definitions.length);
+				// console.log(`test : ${master.monsters.definitions[monsterIndex].name}`);
 				(async () => {
-					if (Math.random() > 0.5) {
+					if (Math.random() > 0.2) {
 						soundManager.startBGM(BGMKind.Battle)
 					} else {
 						soundManager.startBGM(BGMKind.BossBattle)

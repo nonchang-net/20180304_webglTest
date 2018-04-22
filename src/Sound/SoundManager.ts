@@ -18,7 +18,7 @@
 
 ## TODO
 
-- iOS Safariでは初回読み込み完了直後の再生がうまく言ってない。
+- iOS Safariでは初回読み込み完了直後の再生がうまくいってない。
 - また、iOS Safariでは画面スリープしても音が鳴り続けている。これは不具合として認識されると思うのでなんとかしたい……。
 
 
@@ -193,12 +193,10 @@ export default class SoundManager {
 		// 	this.startBGMSource(this.buffers[bgmKind])
 		// }
 
-		const startPos = bgmKind == BGMKind.Opening ? 1.8 : 0
-		// this.startBGMSource(this.buffers[bgmKind], startPos)
 
 		switch (bgmKind) {
 			case BGMKind.Opening:
-				this.startBGMSource(this.titleBGMBuffer, 1.8)
+				this.startBGMSource(this.titleBGMBuffer, 3.1)
 				break
 			case BGMKind.Quest:
 				this.startBGMSource(this.questBGMBuffer)
