@@ -15,13 +15,13 @@
 
 - npm installのあとは、npm run devでローカルサーバ起動します。
 
-- デプロイは`npm run deploy`で実行できますが、S3へのデプロイに必要な機密情報はリポジトリに含んでいません。
+- <s>デプロイは`npm run deploy`で実行できますが、S3へのデプロイに必要な機密情報はリポジトリに含んでいません。</s> ←github pagesに移行したのでメンテしてません。webpackコマンドでdistフォルダの中にできるのでwebサーバなどにアップすれば動作確認できると思います。
 
 - リポジトリ  
 	https://github.com/nonchang-net/20180304_webglTest
 
 - 動作サンプル  
-	http://nonchang.net/test/webgl/
+	https://nonchang-net.github.io/20180304_webglTest/
 
 
 ## ライセンスとか
