@@ -23,6 +23,8 @@
 - 動作サンプル  
 	https://nonchang-net.github.io/20180304_webglTest/
 
+- qiita記事に詳細とか書きました。  
+	https://qiita.com/nonchang-net/items/d1cdf7c071fee08caca1
 
 ## ライセンスとか
 
