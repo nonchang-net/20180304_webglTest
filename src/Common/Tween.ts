@@ -221,7 +221,7 @@ export default class Tween {
 		var currentValue: number = properties.value.start
 
 		//TODO: requestAnimationFrame()に置き換えて、FPSドロップフレームに対応させたいかな
-		this.intervalId = setInterval(() => {
+		this.intervalId = window.setInterval(() => {
 			currentTime += properties.intervalRestDuration
 			currentValue = (currentTime / properties.duration) * properties.value.end
 			const calculatedValue = properties.tweeningFunction(currentTime, properties.value.start, currentValue, properties.duration)
