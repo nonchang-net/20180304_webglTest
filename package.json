@@ -10,18 +10,18 @@
     "watch": "webpack -w"
   },
   "devDependencies": {
-    "copy-webpack-plugin": "^4.5.0",
-    "ts-loader": "^4.0.0",
-    "typescript": "^2.6.1",
-    "webpack": "^4.0.0",
-    "webpack-cli": "^2.0.9",
-    "webpack-dev-server": "^3.0.0"
+    "copy-webpack-plugin": "^4.6.0",
+    "ts-loader": "^4.5.0",
+    "typescript": "^2.9.2",
+    "webpack": "^4.39.1",
+    "webpack-cli": "^3.3.6",
+    "webpack-dev-server": "^3.7.2"
   },
   "dependencies": {
-    "@types/three": "^0.89.10",
-    "npm": "^5.8.0",
+    "@types/three": "^0.89.12",
+    "npm": "^6.10.2",
     "three": "^0.90.0",
-    "tone": "^0.11.11"
+    "tone": "^0.11.12"
   },
   "private": true
 }
