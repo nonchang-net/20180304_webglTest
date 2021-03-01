@@ -20,7 +20,7 @@
   "dependencies": {
     "@types/three": "^0.89.12",
     "npm": "^6.10.2",
-    "three": "^0.90.0",
+    "three": "^0.125.0",
     "tone": "^0.11.12"
   },
   "private": true
